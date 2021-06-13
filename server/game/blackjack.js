@@ -32,7 +32,7 @@ export default class Blackjack {
   }
 
   bet(bet) {
-    if (this.state === "active") {
+    if (this.state === "active" && bet >= 0) {
       this.betAmount = bet;
       this.playerCredits -= this.betAmount;
       console.log(
