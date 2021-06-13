@@ -1,5 +1,5 @@
 import Deck from "./deck.js";
-import Player from "./player.js";
+import Player from "../models/player.js";
 
 export default class Blackjack {
   constructor() {
@@ -62,6 +62,7 @@ export default class Blackjack {
 
   stand() {
     if (this.state === "active" || this.state === "ready") {
+      this.revealDealerCards();
       console.log("stood ");
       this.state = "stand";
       if (this.dealerHand.getDeckValue() >= 17) {
@@ -154,17 +155,20 @@ export default class Blackjack {
     this.state = "win";
     this.playerCredits += this.betAmount * 2;
     console.log("win " + this.playerCredits);
+    this.revealDealerCards();
   }
 
   lose() {
     console.log("lose");
     this.state = "lose";
+    this.revealDealerCards();
   }
 
   tie() {
     console.log("tied");
     this.state = "tie";
     this.playerCredits += this.betAmount;
+    this.revealDealerCards();
   }
 }
 /*
