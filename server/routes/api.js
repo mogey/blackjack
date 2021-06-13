@@ -22,6 +22,11 @@ router.post("/newGame", (req, res) => {
   res.json(game);
 });
 
+router.post("/deal", (req, res) => {
+  game.deal();
+  res.json(game);
+});
+
 router.post("/hit", (req, res) => {
   game.hit();
   res.json(game);
@@ -35,24 +40,19 @@ router.post("/stand", (req, res) => {
 router.post("/replenish", (req, res) => {
   if (game.playerCredits === 0) {
     game.replenish();
-  } else {
-    game.message = "You have enough money";
   }
 
   res.json(game);
 });
 
 router.post("/bet/:amount", (req, res) => {
-  const betAmount = parseInt(req.params.amount);
+  const betAmount = parseInt(req.params.amount) || undefined;
   if (betAmount) {
     if (game.playerCredits - betAmount >= 0) {
       game.bet(betAmount);
-    } else {
-      game.message = "Not enough money";
     }
     res.json(game);
   } else {
-    game.message = "Not amount specified";
     res.json(game);
   }
 });

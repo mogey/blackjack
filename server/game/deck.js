@@ -31,7 +31,15 @@ export default class Deck {
     this.reset();
     suits.forEach((suit, i) => {
       values.forEach((value, j) => {
-        this.addCard(new Card(suit, value));
+        let cost = 0;
+        if (value === "J" || value === "K" || value === "Q") {
+          cost = 10;
+        } else if (value !== "A") {
+          cost = parseInt(value);
+        } else {
+          cost = 11;
+        }
+        this.addCard(new Card(suit, value, cost));
       });
     });
   }
@@ -63,18 +71,28 @@ export default class Deck {
 
   removeCard(card) {
     this.cards = this.cards.splice(this.cards.indexOf(card), 1);
-    this.getDeckValue();
   }
 
   addCard(card) {
     this.cards.push(card);
-    this.getDeckValue();
     return card;
   }
 
   getDeckValue() {
     this.value = 0;
-    this.cards.forEach((card) => {
+    let sortedDeck = [...this.cards];
+    sortedDeck.sort((a, b) => {
+      if (a.cost > b.cost) {
+        return 1;
+      }
+      if (a.cost < b.cost) {
+        return -1;
+      }
+      if (a.cost === b.cost) {
+        return 0;
+      }
+    });
+    sortedDeck.forEach((card) => {
       if (card.value === "J" || card.value === "K" || card.value === "Q") {
         this.value += 10;
       } else if (card.value !== "A") {

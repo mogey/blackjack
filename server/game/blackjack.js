@@ -10,34 +10,43 @@ export default class Blackjack {
 
     this.playerCredits = 1000;
     this.betAmount = 0;
-    this.state = "init"; //win, lose, tie, active, init, stand, ready
+    this.state = "bet"; //win, lose, tie, active, bet
     this.message = "";
 
     console.log("initialized");
   }
 
   initRound() {
+    this.betAmount = 0;
+
+    this.state = "bet";
+    this.message = "";
+    console.log("new game" + this.playerCredits);
+  }
+
+  deal() {
     this.gameDeck.generateDeck();
     this.gameDeck.shuffle();
 
     this.playerHand.reset();
-    this.betAmount = 0;
     this.dealerHand.reset();
 
     this.playerHand.addCard(this.gameDeck.drawCard(true));
     this.playerHand.addCard(this.gameDeck.drawCard(true));
-
+    if (this.playerHand.getDeckValue() === 21) {
+      this.stand();
+    }
     this.dealerHand.addCard(this.gameDeck.drawCard(true));
     this.dealerHand.addCard(this.gameDeck.drawCard(false));
 
-    this.state = "ready";
+    this.state = "active";
     this.message = "";
     this.checkHands();
-    console.log("new game" + this.playerCredits);
+    console.log("dealt cards " + this.playerCredits + " " + this.betAmount);
   }
 
   bet(betAmount) {
-    if (this.state === "ready" && betAmount >= 0) {
+    if (this.state === "bet" && betAmount >= 0) {
       this.betAmount += betAmount;
       this.playerCredits -= betAmount;
       console.log(
@@ -46,6 +55,7 @@ export default class Blackjack {
           ", remaining balance: " +
           this.playerCredits
       );
+      this.deal();
     }
   }
 
@@ -54,9 +64,14 @@ export default class Blackjack {
       this.state = "active";
       const card = this.gameDeck.drawCard(true);
       this.playerHand.addCard(card);
-      this.checkHands();
       console.log("hit:");
       console.log(card);
+      if (this.playerHand.getDeckValue() > 21) {
+        this.lose();
+      }
+      if (this.playerHand.getDeckValue() === 21) {
+        this.stand();
+      }
     }
   }
 
@@ -90,12 +105,12 @@ export default class Blackjack {
     // if the player has more than 21 they bust
     if (this.playerHand.getDeckValue() > 21) {
       this.lose();
-      return;
+      return true;
     }
 
     if (this.dealerHand.getDeckValue() > 21) {
       this.win();
-      return;
+      return true;
     }
 
     //if the player has 21 and the dealer doesn't the player won with blackjack
@@ -104,7 +119,7 @@ export default class Blackjack {
       this.dealerHand.getDeckValue() !== 21
     ) {
       this.win();
-      return;
+      return true;
     }
 
     //if the dealer has 21 and the player doesn't then the player loses
@@ -113,7 +128,7 @@ export default class Blackjack {
       this.playerHand.getDeckValue() !== 21
     ) {
       this.lose();
-      return;
+      return true;
     }
 
     //if the dealer and the player both have blackjack then they tie
@@ -122,13 +137,15 @@ export default class Blackjack {
       this.playerHand.getDeckValue() === 21
     ) {
       this.tie();
-      return;
+      return true;
     }
   }
 
   checkWinner() {
     console.log("checking winner");
-    this.checkHands();
+    if (this.checkHands()) {
+      return;
+    }
     let playerDiff = 21 - this.playerHand.getDeckValue();
     let dealerDiff = 21 - this.dealerHand.getDeckValue();
     if (playerDiff < dealerDiff) {

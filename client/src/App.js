@@ -3,7 +3,7 @@ import "./App.css";
 import Blackjack from "./components/Blackjack";
 
 function App() {
-  return <Blackjack></Blackjack>;
+  return <Blackjack style={{ backgroundColor: "red" }}></Blackjack>;
 }
 
 export default App;

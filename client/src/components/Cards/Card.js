@@ -1,17 +1,16 @@
-import react from "react";
+import React from "react";
+import styles from "./card.module.css";
 
 export default function Card(props) {
   const { card } = props;
   const cardString = card.value + card.suit.charAt(0).toUpperCase();
-
-  const style = { margin: "5px" };
   if (card.visible) {
     return (
       <img
         src={"/assets/" + cardString + ".svg"}
         height={168}
         width={120}
-        style={style}
+        className={styles.card}
         alt={card.value + " " + card.suit}
       ></img>
     );
@@ -21,7 +20,7 @@ export default function Card(props) {
         src="/assets/2B.svg"
         height={168}
         width={120}
-        style={style}
+        className={styles.cardNoShadow}
         alt="Unknown card"
       ></img>
     );

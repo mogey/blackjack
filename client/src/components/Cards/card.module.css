@@ -1,0 +1,23 @@
+.card {
+  filter: drop-shadow(11px 13px 6px #6b7777);
+  margin: 5px;
+  transition: 0.2s;
+}
+.card:hover {
+  position: relative;
+  top: 2px;
+  left: 3px;
+  filter: drop-shadow(1px 10px 7px #6b7777);
+}
+.cardNoShadow {
+  position: relative;
+  left: 5px;
+  margin: 5px;
+  transition: 0.2s;
+}
+.cardNoShadow:hover {
+  filter: drop-shadow(11px 13px 6px #6b7777);
+  position: relative;
+  left: 0px;
+  margin: 0px;
+}

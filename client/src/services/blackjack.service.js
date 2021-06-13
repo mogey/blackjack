@@ -1,36 +1,73 @@
 import axios from "axios";
 
 export const getGame = async () => {
-  const resp = await axios.get("/api/game");
-  return resp;
+  try {
+    const resp = await axios.get("/api/game");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const newGame = async () => {
-  const resp = await axios.post("/api/newGame");
-  return resp;
+  try {
+    const resp = await axios.post("/api/newGame");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const hit = async () => {
-  const resp = await axios.post("/api/hit");
-  return resp;
+  try {
+    const resp = await axios.post("/api/hit");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const stand = async () => {
-  const resp = await axios.post("/api/stand");
-  return resp;
+  try {
+    const resp = await axios.post("/api/stand");
+    return resp;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const deal = async () => {
+  try {
+    const resp = await axios.post("/api/deal");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const bet = async (amount) => {
-  const resp = await axios.post("/api/bet/" + amount);
-  return resp;
+  try {
+    const resp = await axios.post("/api/bet/" + amount);
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const replenish = async (amount) => {
-  const resp = await axios.post("/api/replenish");
-  return resp;
+  try {
+    const resp = await axios.post("/api/replenish");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };
 
 export const getState = async () => {
-  const resp = await axios.get("/api/state");
-  return resp;
+  try {
+    const resp = await axios.get("/api/state");
+    return resp;
+  } catch (err) {
+    return err;
+  }
 };

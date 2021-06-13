@@ -1,14 +1,8 @@
-import react, { useEffect, useState } from "react";
-import {
-  bet,
-  getGame,
-  hit,
-  newGame,
-  replenish,
-  stand,
-} from "../services/blackjack.service";
-import Card from "./Cards/Card";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { getGame, replenish } from "../services/blackjack.service";
+import Active from "./states/Active";
+import Bet from "./states/Bet";
+import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 
 export default function Blackjack() {
   const [game, setGame] = useState({
@@ -29,111 +23,85 @@ export default function Blackjack() {
     state: "init",
     message: "",
   });
-  const [betAmount, setBetamount] = useState(0);
+  const [error, setError] = useState({ isError: false });
   const [refetch, setRefetch] = useState(false);
-
-  const rowPadding = { paddingTop: "20px" };
+  const refetcher = { refetch: refetch, setRefetch: setRefetch };
 
   useEffect(() => {
     getGame().then((resp) => {
-      setGame(resp.data);
+      console.log(resp);
+      if (resp.status === 200) {
+        setGame(resp.data);
+      } else {
+        setError({ errorMessage: resp.toString(), isError: true });
+      }
     });
   }, [refetch]);
 
-  const onHitClick = () => {
-    hit().then(() => {
-      setRefetch(!refetch);
-    });
-  };
-
-  const onBetClick = () => {
-    bet(betAmount).then(() => {
-      setBetamount(0);
-      setRefetch(!refetch);
-    });
-  };
-
-  const onStandClick = () => {
-    stand().then(() => {
-      setRefetch(!refetch);
-    });
-  };
-
-  const onNewGameClick = () => {
-    newGame().then(() => {
-      setBetamount(0);
-      setRefetch(!refetch);
-    });
-  };
-
   const onReplenishClick = () => {
-    replenish().then(() => {
-      setRefetch(!refetch);
+    replenish().then((response) => {
+      if (response.status === 200) {
+        refetcher.setRefetch(!refetcher.refetch);
+      }
     });
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: "#E9EADF", color: "#1A191B" }}>
       <Container>
-        <Row>
-          <Col xs={4} />
+        <Row style={{ position: "relative", top: "5px" }}>
+          <Col xs={4}>
+            <h4 style={{ position: "relative", top: "20px" }}>
+              Bank: ${game.playerCredits}
+            </h4>
+          </Col>
           <Col>
             <h2>Blackjack</h2>
           </Col>
-          <Col xs={4} />
+          <Col xs={4}>
+            <h4 style={{ position: "relative", top: "20px" }}>
+              Bet: ${game.betAmount}
+            </h4>
+          </Col>
         </Row>
         <hr />
-        <Row>
-          <Col>
-            <h3>Dealer's hand</h3>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={3} />
-          <Col>
-            {game.dealerHand.cards.map((card) => {
-              return <Card card={card} />;
-            })}
-          </Col>
-          <Col xs={3} />
-        </Row>
-        <br />
-        <Row>
-          <Col>
-            <h3>Your hand</h3>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={3} />
-          <Col>
-            {game.playerHand.cards.map((card) => {
-              return <Card card={card} />;
-            })}
-          </Col>
-          <Col xs={3} />
-        </Row>
-        <Row style={rowPadding}>
-          <Col xs={4} />
-          <Col xs={1}>
-            <Button onClick={() => onStandClick()} size="sm">
-              Stand
+        {game.playerCredits === 0 && game.state !== "active" ? (
+          <Alert variant="info">
+            You have run out of money, you can replenish your credits with the
+            button below.
+            <hr />
+            <Button
+              onClick={() => {
+                replenish().then(() => {
+                  onReplenishClick();
+                });
+              }}
+            >
+              Replenish
             </Button>
-          </Col>
-          <Col xs={1}>
-            <Button onClick={() => onHitClick()} size="sm">
-              Hit
-            </Button>
-          </Col>
-          <Col xs={4} />
-        </Row>
-        <Row style={rowPadding}>
-          <Col xs={4} />
-          <Col>
-            <h4>Bets are ${game.state}</h4>
-          </Col>
-          <Col xs={4} />
-        </Row>
+          </Alert>
+        ) : null}
+        {error.isError ? (
+          <Alert variant="danger">
+            Error connecting to backend: {error.errorMessage}
+          </Alert>
+        ) : null}
+        {game.state === "active" ||
+        game.state === "lose" ||
+        game.state === "win" ||
+        game.state === "tie" ? (
+          <Active game={game} refetcher={refetcher} />
+        ) : null}
+        {game.state !== "active" && game.state !== "bet" ? null : null}
+        {game.state === "bet" ? (
+          <Bet game={game} refetcher={refetcher} />
+        ) : null}
       </Container>
+    </div>
+  );
+
+  /*
+
       <Container>
         <p>{"Credits: $" + game.playerCredits}</p>
         {game.playerCredits === 0 ? (
@@ -230,7 +198,5 @@ export default function Blackjack() {
         <p color="red">{game.message}</p>
         <br />
         <pre>debug{JSON.stringify(game, null, 2)}</pre>
-      </Container>
-    </div>
-  );
+      </Container> */
 }
