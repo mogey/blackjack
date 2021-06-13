@@ -51,8 +51,14 @@ export default class Deck {
     }
   }
 
-  drawCard() {
-    return this.cards.pop();
+  drawCard(visible) {
+    if (visible) {
+      const card = this.cards.pop();
+      card.visible = true;
+      return card;
+    } else {
+      return this.cards.pop();
+    }
   }
 
   removeCard(card) {
