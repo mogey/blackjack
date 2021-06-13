@@ -28,6 +28,7 @@ export default class Deck {
   }
 
   generateDeck() {
+    this.reset();
     suits.forEach((suit, i) => {
       values.forEach((value, j) => {
         this.addCard(new Card(suit, value));
@@ -81,5 +82,9 @@ export default class Deck {
       }
     });
     return this.value;
+  }
+
+  reset() {
+    this.cards = [];
   }
 }

@@ -1,54 +1,67 @@
 import Deck from "./deck.js";
 import Player from "./player.js";
 
-class Blackjack {
+export default class Blackjack {
   constructor() {
-    //Instantiate and destructure the game's deck
+    //Instantiate the decks
     this.gameDeck = new Deck();
-    const gameDeck = this.gameDeck;
-    //fill game deck with standard deck of cards and shuffle the order
-    gameDeck.generateDeck();
-    gameDeck.shuffle();
-
     this.playerHand = new Deck();
     this.dealerHand = new Deck();
+
     this.playerCredits = 1000;
-    this.bet = 0;
-    this.state = "active"; //win, lose, tie, active
+    this.betAmount = 0;
+    this.state = "init"; //win, lose, tie, active, init
   }
 
   initRound() {
+    this.gameDeck.generateDeck();
+    this.gameDeck.shuffle();
+
+    this.playerHand.reset();
+    this.betAmount = 0;
+    this.dealerHand.reset();
+
     this.playerHand.addCard(this.gameDeck.drawCard());
     this.playerHand.addCard(this.gameDeck.drawCard());
 
     this.dealerHand.addCard(this.gameDeck.drawCard());
     this.dealerHand.addCard(this.gameDeck.drawCard());
 
+    this.state = "active";
     this.checkHands();
   }
 
   bet(bet) {
-    this.bet = bet;
-    this.playerCredits -= this.bet;
-    console.log(
-      "Player bet: " + this.bet + ", remaining balance: " + this.playerCredits
-    );
+    if (this.state === "active") {
+      this.betAmount = bet;
+      this.playerCredits -= this.betAmount;
+      console.log(
+        "Player bet: " +
+          this.betAmount +
+          ", remaining balance: " +
+          this.playerCredits
+      );
+    }
   }
 
   hit() {
-    this.playerHand.addCard(this.gameDeck.drawCard());
-    this.checkHands();
+    if (this.state === "active") {
+      this.playerHand.addCard(this.gameDeck.drawCard());
+      this.checkHands();
+    }
   }
 
   stand() {
-    if (this.dealerHand.getDeckValue() >= 17) {
-      this.checkWinner();
-    } else if (this.dealerHand.getDeckValue() <= 16) {
-      while (!(this.dealerHand.getDeckValue() >= 17)) {
-        console.log("dealer drew: ");
-        console.log(this.dealerHand.addCard(this.gameDeck.drawCard()));
+    if (this.state === "active") {
+      if (this.dealerHand.getDeckValue() >= 17) {
+        this.checkWinner();
+      } else if (this.dealerHand.getDeckValue() <= 16) {
+        while (!(this.dealerHand.getDeckValue() >= 17)) {
+          console.log("dealer drew: ");
+          console.log(this.dealerHand.addCard(this.gameDeck.drawCard()));
+        }
+        this.checkWinner();
       }
-      this.checkWinner();
     }
   }
 
@@ -112,7 +125,7 @@ class Blackjack {
 
   win() {
     this.state = "win";
-    this.playerCredits += this.bet * 2;
+    this.playerCredits += this.betAmount * 2;
   }
 
   lose() {
@@ -121,13 +134,65 @@ class Blackjack {
 
   tie() {
     this.state = "tie";
-    this.playerCredits += this.bet;
+    this.playerCredits += this.betAmount;
   }
 }
+/*
+//Interactive test
 const game = new Blackjack();
 
-game.initRound();
-game.stand();
+import readline from "readline";
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: "move>",
+});
 //console.log(JSON.stringify(game, null, 2));
-console.log(game);
+//console.log(game);
+
+console.log(game.playerCredits);
+rl.prompt();
+rl.on("line", (line) => {
+  if (line.includes("bet")) {
+    const input = line.split(" ");
+    game.bet(input[1]);
+    console.log(game.playerCredits);
+    console.log(game.betAmount);
+    console.log(game.state);
+  } else {
+    switch (line.trim()) {
+      case "new":
+        game.initRound();
+        console.log(game.dealerHand.cards[0]);
+        console.log(game.playerHand);
+        console.log(game.playerCredits);
+        console.log(game.betAmount);
+        console.log(game.state);
+        break;
+      case "hit":
+        game.hit();
+        console.log(game.dealerHand.cards[0]);
+        console.log(game.playerHand);
+        console.log(game.playerCredits);
+        console.log(game.betAmount);
+        console.log(game.state);
+        break;
+      case "stand":
+        game.stand();
+        console.log(game.dealerHand);
+        console.log(game.playerHand);
+        console.log(game.playerCredits);
+        console.log(game.betAmount);
+        console.log(game.state);
+        break;
+      case "close":
+        process.exit(0);
+      default:
+        console.log(`Say what? I might have heard '${line.trim()}'`);
+        break;
+    }
+  }
+  rl.prompt();
+});
+*/
