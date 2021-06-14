@@ -4,6 +4,12 @@ const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL || null,
 });
 
+/**
+ * Gets game state from backend
+ * @param {string} user userID
+ * @returns Axios response containing game state
+
+ */
 export const getGame = async (user) => {
   try {
     const resp = await axiosInstance.get("/api/game", {
@@ -17,6 +23,10 @@ export const getGame = async (user) => {
   }
 };
 
+/**
+ * Validates userID from localStorage
+ * @returns Axios reponse
+ */
 export const getUser = async () => {
   try {
     const resp = await axiosInstance.get("/api/user", {
@@ -30,6 +40,12 @@ export const getUser = async () => {
   }
 };
 
+/**
+ * Sends newGame input to backend, initializing a new round
+ * @param {string} user userID
+ * @returns Axios response containing game state
+
+ */
 export const newGame = async (user) => {
   try {
     const resp = await axiosInstance.post("/api/newGame", null, {
@@ -43,6 +59,12 @@ export const newGame = async (user) => {
   }
 };
 
+/**
+ * Sends hit input to draw an additional card for player
+ * @param {user} user userID
+ * @returns Axios response containing game state
+ containing game state
+ */
 export const hit = async (user) => {
   try {
     const resp = await axiosInstance.post("/api/hit", null, {
@@ -56,6 +78,12 @@ export const hit = async (user) => {
   }
 };
 
+/**
+ * Sends stand input to game session
+ * @param {user} user userID
+ * @returns Axios response containing game state
+ containing game state
+ */
 export const stand = async (user) => {
   try {
     const resp = await axiosInstance.post("/api/stand", null, {
@@ -69,6 +97,13 @@ export const stand = async (user) => {
   }
 };
 
+/**
+ * Sends deal input to deal cards to player
+ * @param {user} user userID
+ * @returns Axios response containing game state
+ containing game state
+
+ */
 export const deal = async (user) => {
   try {
     const resp = await axiosInstance.post("/api/deal", null, {
@@ -82,6 +117,12 @@ export const deal = async (user) => {
   }
 };
 
+/**
+ * Sends bet input to bet player's credits
+ * @param {int} amount amount to bet
+ * @param {string} user userID
+ * @returns Axios reponse
+ */
 export const bet = async (amount, user) => {
   try {
     const resp = await axiosInstance.post("/api/bet/" + amount, null, {
@@ -95,6 +136,13 @@ export const bet = async (amount, user) => {
   }
 };
 
+/**
+ * Sends input to replenish user's credits
+ * @param {user} user userID
+ * @returns Axios response containing game state
+ containing game state
+
+ */
 export const replenish = async (user) => {
   try {
     const resp = await axiosInstance.post("/api/replenish", null, {

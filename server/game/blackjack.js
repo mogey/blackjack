@@ -1,28 +1,57 @@
 import Deck from "./deck.js";
 
 export default class Blackjack {
-  constructor(credits, id) {
+  /**
+   *
+   * @param {int} credits player's credits
+   * @param {string} id UUID for player
+   * @param {int} betAmount player's bet amount
+   * @param {Deck} gameDeck game deck
+   * @param {Deck} playerHand player's hand
+   * @param {Deck} dealerHand dealer's hand
+   * @param {string} state game state
+   */
+  constructor(credits, id, betAmount, gameDeck, playerHand, dealerHand, state) {
     //Instantiate the decks
-    this.gameDeck = new Deck();
-    this.playerHand = new Deck();
-    this.dealerHand = new Deck();
+    this.gameDeck = new Deck(gameDeck);
+    this.playerHand = new Deck(playerHand);
+    this.dealerHand = new Deck(dealerHand);
     this.id = id;
     this.playerCredits = credits;
-    this.betAmount = 0;
-    this.state = "bet"; //win, lose, tie, active, bet
+    this.betAmount = betAmount;
+    this.state = state; //win, lose, tie, active, bet
     this.message = "";
 
-    console.log("initialized");
+    console.log(
+      "Game | ID| " +
+        this.id +
+        " | " +
+        "instanced started game with " +
+        this.playerCredits +
+        " credits."
+    );
   }
 
+  /**
+   * Resets bet amount to zero and sets game state to bet
+   */
   initRound() {
     this.betAmount = 0;
-
     this.state = "bet";
     this.message = "";
-    console.log("new game" + this.playerCredits);
+    console.log(
+      "Game | ID| " +
+        this.id +
+        " | " +
+        "started new round with " +
+        this.playerCredits +
+        " credits."
+    );
   }
 
+  /**
+   * Resets game and deals cards to player and dealer, sets state to active, and then checks hands
+   */
   deal() {
     this.gameDeck.generateDeck();
     this.gameDeck.shuffle();
@@ -41,30 +70,40 @@ export default class Blackjack {
     this.state = "active";
     this.message = "";
     this.checkHands();
-    console.log("dealt cards " + this.playerCredits + " " + this.betAmount);
+    console.log("Game | ID| " + this.id + " | " + "dealt cards.");
   }
 
+  /**
+   *
+   * @param {int} betAmount Amount to bet
+   * Places bet when game state is "bet"
+   */
   bet(betAmount) {
     if (this.state === "bet" && betAmount >= 0) {
       this.betAmount += betAmount;
       this.playerCredits -= betAmount;
       console.log(
-        "Player bet: " +
-          betAmount +
-          ", remaining balance: " +
-          this.playerCredits
+        "Game | ID| " +
+          this.id +
+          " | Bet " +
+          this.betAmount +
+          " credits, remaining: " +
+          this.playerCredits +
+          " credits."
       );
       this.deal();
     }
   }
 
+  /**
+   *Draws card for player and checks to see if they won
+   */
   hit() {
     if (this.state === "active" || this.state === "ready") {
       this.state = "active";
       const card = this.gameDeck.drawCard(true);
       this.playerHand.addCard(card);
-      console.log("hit:");
-      console.log(card);
+      console.log("Game | ID| " + this.id + " | Hit");
       if (this.playerHand.getDeckValue() > 21) {
         this.lose();
       }
@@ -74,33 +113,43 @@ export default class Blackjack {
     }
   }
 
+  /**
+   * Dealer reveals their cards and draws
+   */
   stand() {
     if (this.state === "active" || this.state === "ready") {
       this.revealDealerCards();
-      console.log("stood ");
+      console.log("Game | ID| " + this.id + " | Stood");
       this.state = "stand";
       if (this.dealerHand.getDeckValue() >= 17) {
         this.checkWinner();
       } else if (this.dealerHand.getDeckValue() <= 16) {
         while (!(this.dealerHand.getDeckValue() >= 17)) {
-          console.log("dealer drew: ");
-          console.log(this.dealerHand.addCard(this.gameDeck.drawCard()));
+          console.log("Game | ID| " + this.id + " | Dealer draw");
+          this.dealerHand.addCard(this.gameDeck.drawCard());
         }
         this.checkWinner();
       }
     }
   }
 
+  /**
+   * Sets player's credits to 1000 if it is 0
+   */
   replenish() {
     if (this.playerCredits === 0) {
       this.playerCredits = 1000;
 
-      console.log("replenished ");
+      console.log("Game | ID| " + this.id + " | Replenished");
     }
   }
 
+  /**
+   *
+   * @returns {boolean} true if a winner is found
+   */
   checkHands() {
-    console.log("checking hands");
+    console.log("Game | ID| " + this.id + " | Checking hands");
     // if the player has more than 21 they bust
     if (this.playerHand.getDeckValue() > 21) {
       this.lose();
@@ -140,8 +189,12 @@ export default class Blackjack {
     }
   }
 
+  /**
+   *
+   * @returns null, checks to see who is closest to 21
+   */
   checkWinner() {
-    console.log("checking winner");
+    console.log("Game | ID| " + this.id + " | Checking for winner");
     if (this.checkHands()) {
       return;
     }
@@ -161,29 +214,53 @@ export default class Blackjack {
     }
   }
 
+  /**
+   * Sets all cards in dealerHand.cards to visible
+   */
   revealDealerCards() {
     this.dealerHand.cards.forEach((card) => {
       card.visible = true;
     });
   }
 
+  /**
+   * Called when player wins, adds betAmount * 2 credits to playerCredits
+   */
   win() {
     this.state = "win";
     this.playerCredits += this.betAmount * 2;
-    console.log("win " + this.playerCredits);
+    console.log(
+      "Game | ID| " +
+        this.id +
+        " | Won!!! They have " +
+        this.playerCredits +
+        " credits"
+    );
     this.revealDealerCards();
   }
 
+  /**
+   * Called when player loses
+   */
   lose() {
-    console.log("lose");
     this.state = "lose";
+    console.log("Game | ID| " + this.id + " | Lost.");
     this.revealDealerCards();
   }
 
+  /**
+   * Called when player ties, adds betAmmount to playerCredits
+   */
   tie() {
-    console.log("tied");
     this.state = "tie";
     this.playerCredits += this.betAmount;
+    console.log(
+      "Game | ID| " +
+        this.id +
+        " | Tied, they have " +
+        this.playerCredits +
+        " credits"
+    );
     this.revealDealerCards();
   }
 }

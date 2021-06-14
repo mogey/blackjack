@@ -5,7 +5,9 @@ import Bet from "./states/Bet";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 
 export default function Blackjack(props) {
-  const { user } = props;
+  const { user } = props; //destructure props so we know what we have
+
+  //Set up initial game stage before page loads in case game is rendered
   const [game, setGame] = useState({
     gameDeck: {
       cards: [],
@@ -26,19 +28,23 @@ export default function Blackjack(props) {
   });
   const [error, setError] = useState({ isError: false });
   const [refetch, setRefetch] = useState(false);
-  const refetcher = { refetch: refetch, setRefetch: setRefetch };
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const refetcher = { refetch: refetch, setRefetch: setRefetch }; //allows us to trigger useEffect from within children components
 
+  //Loads game state from backend
   useEffect(() => {
+    setDataLoaded(false);
     getGame(user).then((resp) => {
-      console.log(resp);
       if (resp.status === 200) {
         setGame(resp.data);
+        setDataLoaded(true);
       } else {
         setError({ errorMessage: resp.toString(), isError: true });
       }
     });
   }, [refetch, user]);
 
+  //Hands click for replenish button
   const onReplenishClick = () => {
     replenish(user).then((response) => {
       if (response.status === 200) {
@@ -47,58 +53,62 @@ export default function Blackjack(props) {
     });
   };
 
-  return (
-    <div style={{ backgroundColor: "#E9EADF", color: "#1A191B" }}>
-      <Container>
-        <Row style={{ position: "relative", top: "5px" }}>
-          <Col xs={4}>
-            <h4 style={{ position: "relative", top: "20px" }}>
-              Bank: ${game.playerCredits}
-            </h4>
-          </Col>
-          <Col>
-            <h2>Blackjack</h2>
-          </Col>
-          <Col xs={4}>
-            <h4 style={{ position: "relative", top: "20px" }}>
-              Bet: ${game.betAmount}
-            </h4>
-          </Col>
-        </Row>
-        <hr />
-        {game.playerCredits === 0 && game.state !== "active" ? (
-          <Alert variant="info">
-            You have run out of money, would you like to replenish your
-            credits?.
-            <Button
-              onClick={() => {
-                onReplenishClick();
-              }}
-              size="sm"
-              style={{ float: "right", position: "relative", bottom: "3px" }}
-            >
-              Replenish
-            </Button>
-          </Alert>
-        ) : null}
-        {error.isError ? (
-          <Alert variant="danger">
-            Error connecting to backend: {error.errorMessage}
-          </Alert>
-        ) : null}
-        {game.state === "active" ||
-        game.state === "lose" ||
-        game.state === "win" ||
-        game.state === "tie" ? (
-          <Active game={game} refetcher={refetcher} user={user} />
-        ) : null}
-        {game.state !== "active" && game.state !== "bet" ? null : null}
-        {game.state === "bet" ? (
-          <Bet game={game} refetcher={refetcher} user={user} />
-        ) : null}
-      </Container>
-    </div>
-  );
+  if (dataLoaded) {
+    return (
+      <div style={{ backgroundColor: "#E9EADF", color: "#1A191B" }}>
+        <Container>
+          <Row style={{ position: "relative", top: "5px" }}>
+            <Col xs={4}>
+              <h4 style={{ position: "relative", top: "20px" }}>
+                Bank: ${game.playerCredits}
+              </h4>
+            </Col>
+            <Col>
+              <h2>Blackjack</h2>
+            </Col>
+            <Col xs={4}>
+              <h4 style={{ position: "relative", top: "20px" }}>
+                Bet: ${game.betAmount}
+              </h4>
+            </Col>
+          </Row>
+          <hr />
+          {game.playerCredits === 0 && game.state !== "active" ? (
+            <Alert variant="info">
+              You have run out of money, would you like to replenish your
+              credits?.
+              <Button
+                onClick={() => {
+                  onReplenishClick();
+                }}
+                size="sm"
+                style={{ float: "right", position: "relative", bottom: "3px" }}
+              >
+                Replenish
+              </Button>
+            </Alert>
+          ) : null}
+          {error.isError ? (
+            <Alert variant="danger">
+              Error connecting to backend: {error.errorMessage}
+            </Alert>
+          ) : null}
+          {game.state === "active" ||
+          game.state === "lose" ||
+          game.state === "win" ||
+          game.state === "tie" ? (
+            <Active game={game} refetcher={refetcher} user={user} />
+          ) : null}
+          {game.state !== "active" && game.state !== "bet" ? null : null}
+          {game.state === "bet" ? (
+            <Bet game={game} refetcher={refetcher} user={user} />
+          ) : null}
+        </Container>
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 
   /*
 

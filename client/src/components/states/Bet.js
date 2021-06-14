@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Row, Col, Button, Form } from "react-bootstrap";
 import { bet, deal } from "../../services/blackjack.service";
 export default function Bet(props) {
+  const { game, refetcher, user } = props; //destructure props so we know what we have
+
   const [betAmount, setBetAmount] = useState();
-  const { game, refetcher, user } = props;
   const rowPadding = { marginTop: "50px" };
 
   const handleBetChange = (e) => {
@@ -12,7 +13,6 @@ export default function Bet(props) {
 
   const handleBetClick = () => {
     bet(betAmount, user).then((response) => {
-      console.log(response);
       if (response.status === 200) {
         setBetAmount();
         refetcher.setRefetch(!refetcher.refetch);
@@ -29,6 +29,7 @@ export default function Bet(props) {
       }
     });
   };
+
   return (
     <React.Fragment>
       <Row style={rowPadding}>

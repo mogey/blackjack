@@ -3,7 +3,7 @@ import { Row, Col, Button, Alert } from "react-bootstrap";
 import { hit, newGame, stand } from "../../services/blackjack.service";
 import Card from "../Cards/Card";
 export default function Active(props) {
-  const { game, refetcher, user } = props;
+  const { game, refetcher, user } = props; //destructure props so we know what we have
 
   const rowPadding = { marginTop: "50px" };
 
