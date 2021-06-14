@@ -1,8 +1,12 @@
 import axios from "axios";
 
+const axiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_BASE_URL || null,
+});
+
 export const getGame = async (user) => {
   try {
-    const resp = await axios.get("/api/game", {
+    const resp = await axiosInstance.get("/api/game", {
       headers: {
         id: user,
       },
@@ -15,7 +19,7 @@ export const getGame = async (user) => {
 
 export const getUser = async () => {
   try {
-    const resp = await axios.get("/api/user", {
+    const resp = await axiosInstance.get("/api/user", {
       headers: {
         id: window.localStorage.getItem("userID"),
       },
@@ -28,7 +32,7 @@ export const getUser = async () => {
 
 export const newGame = async (user) => {
   try {
-    const resp = await axios.post("/api/newGame", null, {
+    const resp = await axiosInstance.post("/api/newGame", null, {
       headers: {
         id: user,
       },
@@ -41,7 +45,7 @@ export const newGame = async (user) => {
 
 export const hit = async (user) => {
   try {
-    const resp = await axios.post("/api/hit", null, {
+    const resp = await axiosInstance.post("/api/hit", null, {
       headers: {
         id: user,
       },
@@ -54,7 +58,7 @@ export const hit = async (user) => {
 
 export const stand = async (user) => {
   try {
-    const resp = await axios.post("/api/stand", null, {
+    const resp = await axiosInstance.post("/api/stand", null, {
       headers: {
         id: user,
       },
@@ -67,7 +71,7 @@ export const stand = async (user) => {
 
 export const deal = async (user) => {
   try {
-    const resp = await axios.post("/api/deal", null, {
+    const resp = await axiosInstance.post("/api/deal", null, {
       headers: {
         id: user,
       },
@@ -80,7 +84,7 @@ export const deal = async (user) => {
 
 export const bet = async (amount, user) => {
   try {
-    const resp = await axios.post("/api/bet/" + amount, null, {
+    const resp = await axiosInstance.post("/api/bet/" + amount, null, {
       headers: {
         id: user,
       },
@@ -93,7 +97,7 @@ export const bet = async (amount, user) => {
 
 export const replenish = async (user) => {
   try {
-    const resp = await axios.post("/api/replenish", null, {
+    const resp = await axiosInstance.post("/api/replenish", null, {
       headers: {
         id: user,
       },

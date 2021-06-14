@@ -11,7 +11,7 @@ export const sequelizeInstance = new Sequelize(
   process.env.MYSQL_USER_ACCOUNT,
   process.env.MYSQL_USER_PASSWORD,
   {
-    host: "localhost",
+    host: process.env.MYSQL_HOST,
     dialect: "mysql",
   }
 );

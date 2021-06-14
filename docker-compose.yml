@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password --init-file /data/application/blackjack.sql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: blackjack123!
+    networks:
+      - blackjack-network
+    volumes:
+      - ./blackjack.sql:/data/application/blackjack.sql
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: blackjack-server
+    container_name: blackjack-server
+    command: node index.js
+    restart: always
+    environment:
+      MYSQL_USER_PASSWORD: blackjack123!
+      MYSQL_USER_ACCOUNT: root
+      MYSQL_DATABASE: blackjack
+      MYSQL_HOST: db
+    volumes:
+      - ./server/:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    links:
+      - db:db
+    env_file: ./server/.env
+    networks:
+      - blackjack-network
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: blackjack-client
+    container_name: blackjack-client
+    command: npm start
+    volumes:
+      - ./client:/usr/app
+      - /usr/app/node_modules
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+    links:
+      - server:server
+    networks:
+      - blackjack-network
+
+networks:
+  blackjack-network:
+    driver: bridge
+
+volumes:
+  node_modules:
+  web-root:
+    driver: local
