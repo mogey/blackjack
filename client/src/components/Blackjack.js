@@ -4,7 +4,8 @@ import Active from "./states/Active";
 import Bet from "./states/Bet";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 
-export default function Blackjack() {
+export default function Blackjack(props) {
+  const { user } = props;
   const [game, setGame] = useState({
     gameDeck: {
       cards: [],
@@ -97,6 +98,8 @@ export default function Blackjack() {
           <Bet game={game} refetcher={refetcher} />
         ) : null}
       </Container>
+      <pre>debug{JSON.stringify(game, null, 2)}</pre>
+      {props.user}
     </div>
   );
 

@@ -3,18 +3,16 @@ import Blackjack from "../game/blackjack.js";
 
 const router = express.Router();
 
-const game = new Blackjack();
+const games = new Map();
 
-router.get("/state", (req, res) => {
-  res.json(game.state);
-});
+const game = new Blackjack(1000, 1);
 
 router.get("/game", (req, res) => {
   res.json(game);
 });
 
-router.get("/playerHand", (req, res, next) => {
-  res.json(game.playerHand);
+router.post("/init", (req, res) => {
+  res.json(game);
 });
 
 router.post("/newGame", (req, res) => {

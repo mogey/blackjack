@@ -3,7 +3,7 @@ import { Row, Col, Button, Form } from "react-bootstrap";
 import { bet, deal } from "../../services/blackjack.service";
 export default function Bet(props) {
   const [betAmount, setBetAmount] = useState();
-  const { game, refetcher } = props;
+  const { game, refetcher, user } = props;
   const rowPadding = { marginTop: "50px" };
 
   const handleBetChange = (e) => {

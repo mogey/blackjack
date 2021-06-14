@@ -1,14 +1,13 @@
 import Deck from "./deck.js";
-import Player from "../models/player.js";
 
 export default class Blackjack {
-  constructor() {
+  constructor(credits, id) {
     //Instantiate the decks
     this.gameDeck = new Deck();
     this.playerHand = new Deck();
     this.dealerHand = new Deck();
-
-    this.playerCredits = 1000;
+    this.id = id || undefined;
+    this.playerCredits = credits || 1000;
     this.betAmount = 0;
     this.state = "bet"; //win, lose, tie, active, bet
     this.message = "";

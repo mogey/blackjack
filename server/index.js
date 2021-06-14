@@ -1,19 +1,47 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import routes from "./routes/api.js";
 import bodyParser from "body-parser";
-import mongoose from "mongoose";
+import Sequelize from "sequelize";
+const { DataTypes } = Sequelize;
 
-dotenv.config();
+export const sequelizeInstance = new Sequelize(
+  process.env.MYSQL_DATABASE,
+  process.env.MYSQL_USER_ACCOUNT,
+  process.env.MYSQL_USER_PASSWORD,
+  {
+    host: "localhost",
+    dialect: "mysql",
+  }
+);
+
+try {
+  await sequelizeInstance.authenticate();
+  console.log("Connection has been established successfully.");
+} catch (error) {
+  console.error("Unable to connect to the database:", error);
+}
+
+const Player = sequelizeInstance.define("Player", {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: Sequelize.UUIDV4,
+    primaryKey: true,
+  },
+  money: {
+    type: DataTypes.BIGINT,
+    defaultValue: 1000,
+  },
+});
+
+await Player.sync().then((response) => {
+  console.log("Created database table for player");
+});
 
 const app = express();
 
-const port = process.env.port || 5000;
-
-mongoose.connect("mongodb://localhost:27017/blackjack", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const port = process.env.PORT || 5000;
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
