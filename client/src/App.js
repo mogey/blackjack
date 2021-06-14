@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Blackjack from "./components/Blackjack";
-import { getUser, newGame } from "./services/blackjack.service";
+import { getUser } from "./services/blackjack.service";
 
 function App(props) {
   const localStorage = window.localStorage;
@@ -15,7 +15,7 @@ function App(props) {
         setUser(response.data.id);
       }
     });
-  }, []);
+  }, [localStorage]);
   console.log("user id is " + user);
   return user ? <Blackjack user={user}></Blackjack> : null;
 }

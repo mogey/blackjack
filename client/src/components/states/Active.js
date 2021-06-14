@@ -37,14 +37,13 @@ export default function Active(props) {
         <React.Fragment>
           <Alert variant="primary">
             You {game.state} the game!
-            <hr />
             <Button
               onClick={() => {
                 onNewGameClick();
               }}
               variant="primary"
               size="sm"
-              className="justify-content-end"
+              style={{ float: "right", position: "relative", bottom: "3px" }}
             >
               New Game
             </Button>

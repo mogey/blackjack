@@ -68,15 +68,14 @@ export default function Blackjack(props) {
         <hr />
         {game.playerCredits === 0 && game.state !== "active" ? (
           <Alert variant="info">
-            You have run out of money, you can replenish your credits with the
-            button below.
-            <hr />
+            You have run out of money, would you like to replenish your
+            credits?.
             <Button
               onClick={() => {
-                replenish().then(() => {
-                  onReplenishClick();
-                });
+                onReplenishClick();
               }}
+              size="sm"
+              style={{ float: "right", position: "relative", bottom: "3px" }}
             >
               Replenish
             </Button>
@@ -98,7 +97,6 @@ export default function Blackjack(props) {
           <Bet game={game} refetcher={refetcher} user={user} />
         ) : null}
       </Container>
-      session: {props.user}
     </div>
   );
 
