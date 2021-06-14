@@ -29,7 +29,7 @@ export default function Blackjack(props) {
   const refetcher = { refetch: refetch, setRefetch: setRefetch };
 
   useEffect(() => {
-    getGame().then((resp) => {
+    getGame(user).then((resp) => {
       console.log(resp);
       if (resp.status === 200) {
         setGame(resp.data);
@@ -37,10 +37,10 @@ export default function Blackjack(props) {
         setError({ errorMessage: resp.toString(), isError: true });
       }
     });
-  }, [refetch]);
+  }, [refetch, user]);
 
   const onReplenishClick = () => {
-    replenish().then((response) => {
+    replenish(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);
       }
@@ -91,15 +91,14 @@ export default function Blackjack(props) {
         game.state === "lose" ||
         game.state === "win" ||
         game.state === "tie" ? (
-          <Active game={game} refetcher={refetcher} />
+          <Active game={game} refetcher={refetcher} user={user} />
         ) : null}
         {game.state !== "active" && game.state !== "bet" ? null : null}
         {game.state === "bet" ? (
-          <Bet game={game} refetcher={refetcher} />
+          <Bet game={game} refetcher={refetcher} user={user} />
         ) : null}
       </Container>
-      <pre>debug{JSON.stringify(game, null, 2)}</pre>
-      {props.user}
+      session: {props.user}
     </div>
   );
 

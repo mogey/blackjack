@@ -1,1 +1,1 @@
-export const id = parseInt(localStorage.getItem("userID"));
+export const id = localStorage.getItem("userID");

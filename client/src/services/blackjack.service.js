@@ -1,11 +1,10 @@
 import axios from "axios";
-import { id } from "./userHeader";
 
-export const getGame = async () => {
+export const getGame = async (user) => {
   try {
     const resp = await axios.get("/api/game", {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -14,11 +13,11 @@ export const getGame = async () => {
   }
 };
 
-export const newGame = async () => {
+export const getUser = async () => {
   try {
-    const resp = await axios.post("/api/newGame", {
+    const resp = await axios.get("/api/user", {
       headers: {
-        id: id,
+        id: window.localStorage.getItem("userID"),
       },
     });
     return resp;
@@ -27,11 +26,11 @@ export const newGame = async () => {
   }
 };
 
-export const hit = async () => {
+export const newGame = async (user) => {
   try {
-    const resp = await axios.post("/api/hit", {
+    const resp = await axios.post("/api/newGame", null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -40,11 +39,11 @@ export const hit = async () => {
   }
 };
 
-export const stand = async () => {
+export const hit = async (user) => {
   try {
-    const resp = await axios.post("/api/stand", {
+    const resp = await axios.post("/api/hit", null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -53,11 +52,11 @@ export const stand = async () => {
   }
 };
 
-export const deal = async () => {
+export const stand = async (user) => {
   try {
-    const resp = await axios.post("/api/deal", {
+    const resp = await axios.post("/api/stand", null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -66,11 +65,11 @@ export const deal = async () => {
   }
 };
 
-export const bet = async (amount) => {
+export const deal = async (user) => {
   try {
-    const resp = await axios.post("/api/bet/" + amount, {
+    const resp = await axios.post("/api/deal", null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -79,11 +78,11 @@ export const bet = async (amount) => {
   }
 };
 
-export const replenish = async (amount) => {
+export const bet = async (amount, user) => {
   try {
-    const resp = await axios.post("/api/replenish", {
+    const resp = await axios.post("/api/bet/" + amount, null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;
@@ -92,11 +91,11 @@ export const replenish = async (amount) => {
   }
 };
 
-export const getState = async () => {
+export const replenish = async (user) => {
   try {
-    const resp = await axios.get("/api/state", {
+    const resp = await axios.post("/api/replenish", null, {
       headers: {
-        id: id,
+        id: user,
       },
     });
     return resp;

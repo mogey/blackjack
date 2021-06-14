@@ -6,8 +6,8 @@ export default class Blackjack {
     this.gameDeck = new Deck();
     this.playerHand = new Deck();
     this.dealerHand = new Deck();
-    this.id = id || undefined;
-    this.playerCredits = credits || 1000;
+    this.id = id;
+    this.playerCredits = credits;
     this.betAmount = 0;
     this.state = "bet"; //win, lose, tie, active, bet
     this.message = "";

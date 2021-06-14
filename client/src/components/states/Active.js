@@ -8,7 +8,7 @@ export default function Active(props) {
   const rowPadding = { marginTop: "50px" };
 
   const onStandClick = () => {
-    stand().then((response) => {
+    stand(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);
       }
@@ -16,7 +16,7 @@ export default function Active(props) {
   };
 
   const onNewGameClick = () => {
-    newGame().then((response) => {
+    newGame(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);
       }
@@ -24,7 +24,7 @@ export default function Active(props) {
   };
 
   const onHitClick = () => {
-    hit().then((response) => {
+    hit(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);
       }

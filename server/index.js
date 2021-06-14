@@ -23,7 +23,7 @@ try {
   console.error("Unable to connect to the database:", error);
 }
 
-const Player = sequelizeInstance.define("Player", {
+export const Player = sequelizeInstance.define("Player", {
   id: {
     type: DataTypes.UUID,
     defaultValue: Sequelize.UUIDV4,

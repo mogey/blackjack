@@ -1,18 +1,23 @@
+import { useEffect, useState } from "react";
 import "./App.css";
 import Blackjack from "./components/Blackjack";
-import { newGame } from "./services/blackjack.service";
+import { getUser, newGame } from "./services/blackjack.service";
 
-function App() {
+function App(props) {
   const localStorage = window.localStorage;
-  const user = parseInt(localStorage.getItem("userID"));
-  if (!user) {
-    newGame().then((response) => {
-      if (response.status === 200) {
-        localStorage.setItem("userID", response.data.id.toString());
+  const [user, setUser] = useState(localStorage.getItem("userID"));
+
+  useEffect(() => {
+    getUser().then((response) => {
+      if (response.status === 200 && response.data.id) {
+        console.log("got id from server: " + response.data.id);
+        localStorage.setItem("userID", response.data.id);
+        setUser(response.data.id);
       }
     });
-  }
-  return <Blackjack user={user}></Blackjack>;
+  }, []);
+  console.log("user id is " + user);
+  return user ? <Blackjack user={user}></Blackjack> : null;
 }
 
 export default App;

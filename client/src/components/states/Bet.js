@@ -11,7 +11,7 @@ export default function Bet(props) {
   };
 
   const handleBetClick = () => {
-    bet(betAmount).then((response) => {
+    bet(betAmount, user).then((response) => {
       console.log(response);
       if (response.status === 200) {
         setBetAmount();
@@ -23,7 +23,7 @@ export default function Bet(props) {
   };
 
   const handleDealClick = () => {
-    deal().then((response) => {
+    deal(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);
       }
