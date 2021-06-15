@@ -107,7 +107,15 @@ export default function Blackjack(props) {
       </div>
     );
   } else {
-    return <div></div>;
+    return (
+      <div>
+        {error.isError ? (
+          <Alert variant="danger">
+            Error connecting to backend: {error.errorMessage}
+          </Alert>
+        ) : null}
+      </div>
+    );
   }
 
   /*
