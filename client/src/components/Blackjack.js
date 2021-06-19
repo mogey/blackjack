@@ -60,15 +60,15 @@ export default function Blackjack(props) {
             className="d-flex justify-content-between"
             style={{ position: "relative", top: "5px" }}
           >
-            <Col>
+            <Col className="d-flex justify-content-center">
               <h4 style={{ position: "relative", top: "20px" }}>
                 Bank: ${game.playerCredits}
               </h4>
             </Col>
-            <Col>
+            <Col className="d-flex justify-content-center">
               <h2>Blackjack</h2>
             </Col>
-            <Col>
+            <Col className="d-flex justify-content-center">
               <h4 style={{ position: "relative", top: "20px" }}>
                 Bet: ${game.betAmount}
               </h4>

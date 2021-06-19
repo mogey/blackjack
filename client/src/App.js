@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import Blackjack from "./components/Blackjack";
 import { getUser } from "./services/blackjack.service";
 
