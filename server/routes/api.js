@@ -94,18 +94,47 @@ router.get("/game", async (req, res) => {
   } else {
     const searchedPlayer = await Player.findOne({ where: { id: id } });
     if (searchedPlayer instanceof Player && searchedPlayer) {
-      const newGame = new Blackjack(
-        searchedPlayer.money,
-        searchedPlayer.id,
-        searchedPlayer.betAmount,
-        searchedPlayer.gameDeck,
-        searchedPlayer.playerHand,
-        searchedPlayer.dealerHand,
-        searchedPlayer.state
-      );
-      games.set(searchedPlayer.id, newGame);
-      res.json(games.get(searchedPlayer.id));
-      return;
+      try {
+        const newGame = new Blackjack(
+          searchedPlayer.money,
+          searchedPlayer.id,
+          searchedPlayer.betAmount,
+          searchedPlayer.gameDeck,
+          searchedPlayer.playerHand,
+          searchedPlayer.dealerHand,
+          searchedPlayer.state
+        );
+        games.set(searchedPlayer.id, newGame);
+        res.json(games.get(searchedPlayer.id));
+        return;
+      } catch (err) {
+        searchedPlayer.money = searchedPlayer.money + searchedPlayer.betAmount;
+        searchedPlayer.betAmount = 0;
+        searchedPlayer.gameDeck = [];
+        searchedPlayer.playerHand = [];
+        searchedPlayer.dealerHand = [];
+        searchedPlayer.state = "bet";
+        searchedPlayer.save();
+
+        const newGame = new Blackjack(
+          searchedPlayer.money,
+          searchedPlayer.id,
+          searchedPlayer.betAmount,
+          searchedPlayer.gameDeck,
+          searchedPlayer.playerHand,
+          searchedPlayer.dealerHand,
+          searchedPlayer.state
+        );
+        console.error(
+          "!!API  | ID| " +
+            searchedPlayer.id +
+            " |  reset game due to error ." +
+            err
+        );
+        games.set(searchedPlayer.id, newGame);
+        res.json(games.get(searchedPlayer.id));
+        return;
+      }
     }
   }
   res.json(games.get(id));

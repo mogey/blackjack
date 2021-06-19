@@ -35,22 +35,22 @@ export default function Bet(props) {
 
   return (
     <React.Fragment>
+      <Row style={rowPadding} className="justify-content-center">
+        <Col>
+          <Form inline>
+            <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
+            <Form.Control
+              onChange={(e) => {
+                handleBetChange(e);
+              }}
+              value={betAmount}
+              placeholder="Bet amount"
+              style={{ marginRight: "10px" }}
+            />
+          </Form>
+        </Col>
+      </Row>
       <center>
-        <Row style={rowPadding}>
-          <Col>
-            <Form inline>
-              <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
-              <Form.Control
-                onChange={(e) => {
-                  handleBetChange(e);
-                }}
-                value={betAmount}
-                placeholder="Bet amount"
-                style={{ marginRight: "10px" }}
-              />
-            </Form>
-          </Col>
-        </Row>
         <Row style={rowPadding}>
           <Col>
             <Button
