@@ -33,7 +33,6 @@ export default function Blackjack(props) {
 
   //Loads game state from backend
   useEffect(() => {
-    setDataLoaded(false);
     getGame(user).then((resp) => {
       if (resp.status === 200) {
         setGame(resp.data);
@@ -57,8 +56,11 @@ export default function Blackjack(props) {
     return (
       <div style={{ backgroundColor: "#E9EADF", color: "#1A191B" }}>
         <Container>
-          <Row style={{ position: "relative", top: "5px" }}>
-            <Col xs={4}>
+          <Row
+            className="d-flex justify-content-between"
+            style={{ position: "relative", top: "5px" }}
+          >
+            <Col>
               <h4 style={{ position: "relative", top: "20px" }}>
                 Bank: ${game.playerCredits}
               </h4>
@@ -66,7 +68,7 @@ export default function Blackjack(props) {
             <Col>
               <h2>Blackjack</h2>
             </Col>
-            <Col xs={4}>
+            <Col>
               <h4 style={{ position: "relative", top: "20px" }}>
                 Bet: ${game.betAmount}
               </h4>

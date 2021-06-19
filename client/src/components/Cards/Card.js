@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./card.module.css";
+import { Image } from "react-bootstrap";
 
 export default function Card(props) {
   const { card } = props;
@@ -9,19 +10,15 @@ export default function Card(props) {
   if (card.visible) {
     return (
       <img
-        src={"/assets/" + cardString + ".svg"}
-        height={168}
-        width={120}
+        src={"/blackjack/assets/" + cardString + ".svg"}
         className={styles.card}
-        alt={card.value + " " + card.suit}
+        alt={card.value + " of " + card.suit}
       ></img>
     );
   } else {
     return (
       <img
-        src="/assets/2B.svg"
-        height={168}
-        width={120}
+        src="/blackjack/assets/2B.svg"
         className={styles.cardNoShadow}
         alt="Unknown card"
       ></img>

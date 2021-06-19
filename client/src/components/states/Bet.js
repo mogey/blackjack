@@ -5,7 +5,10 @@ export default function Bet(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
 
   const [betAmount, setBetAmount] = useState();
-  const rowPadding = { marginTop: "50px" };
+  const rowPadding = {
+    margin: "25px auto",
+    width: "50%",
+  };
 
   const handleBetChange = (e) => {
     setBetAmount(e.target.value);
@@ -32,29 +35,34 @@ export default function Bet(props) {
 
   return (
     <React.Fragment>
-      <Row style={rowPadding}>
-        <Col xs={2} />
-        <Col>
-          <Form inline>
-            <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
-            <Form.Control
-              onChange={(e) => {
-                handleBetChange(e);
-              }}
-              value={betAmount}
-              placeholder="Bet amount"
-              style={{ marginRight: "10px" }}
-            />
-            <Form.Text>{game.message}</Form.Text>
+      <center>
+        <Row style={rowPadding}>
+          <Col>
+            <Form inline>
+              <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
+              <Form.Control
+                onChange={(e) => {
+                  handleBetChange(e);
+                }}
+                value={betAmount}
+                placeholder="Bet amount"
+                style={{ marginRight: "10px" }}
+              />
+            </Form>
+          </Col>
+        </Row>
+        <Row style={rowPadding}>
+          <Col>
             <Button
               onClick={() => {
                 handleBetClick();
               }}
-              style={{ backgroundColor: "#2D6233", margin: "10px" }}
+              style={{ backgroundColor: "#2D6233" }}
             >
               Bet
             </Button>
-
+          </Col>
+          <Col>
             <Button
               style={{ backgroundColor: "#7792792" }}
               onClick={() => {
@@ -64,10 +72,9 @@ export default function Bet(props) {
             >
               Deal
             </Button>
-          </Form>
-        </Col>
-        <Col xs={2} />
-      </Row>
+          </Col>
+        </Row>
+      </center>
     </React.Fragment>
   );
 }

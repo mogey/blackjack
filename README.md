@@ -28,6 +28,8 @@ The game is essentially a Blackjack class that simulates the game of Blackjack f
 
 As someone who's career has been primarily frontend focused so far, learning how to write a backend service from scratch using Express was a fun challenge, and I look forward to learning more.
 
+For deployment I used Dockerfiles and docker-compose, the client is served using the Webpack development server for testing. However in a full production environment I'd want to use something like nginx and serve the results of `npm build`.
+
 ## Setting up a local environment
 
 The entire application can be run using docker-compose
@@ -47,3 +49,7 @@ and finally
 `docker-compose up client`
 
 The server will crash if it cannot connect to the database, however it will keep restarting until it can.
+
+## Contact
+
+Mohsin Qureshi - mohsinqureshi51@gmail.com

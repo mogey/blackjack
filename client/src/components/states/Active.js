@@ -50,64 +50,67 @@ export default function Active(props) {
           </Alert>
         </React.Fragment>
       ) : null}
-      <Row>
-        <Col>
-          <h3>
-            Dealer's hand (
-            {game.state !== "active" ? game.dealerHand.value : "?"})
-          </h3>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={3} />
-        <Col>
-          {game.dealerHand.cards.map((card) => {
-            return <Card card={card} />;
-          })}
-        </Col>
-      </Row>
-      <br />
-      <Row>
-        <Col>
-          <h3>Your hand ({game.playerHand.value})</h3>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={3} />
-        <Col>
-          {game.playerHand.cards.map((card) => {
-            return <Card card={card} />;
-          })}
-        </Col>
-      </Row>
-      <Row style={rowPadding}>
-        <Col xs={4} />
-        <Col xs={1}>
-          <Button
-            style={{ backgroundColor: "#7792792" }}
-            onClick={() => {
-              onStandClick();
-            }}
-            disabled={game.state !== "active"}
-            variant="light"
+      <center>
+        <Row>
+          <Col>
+            <h3>
+              Dealer's hand (
+              {game.state !== "active" ? game.dealerHand.value : "?"})
+            </h3>
+          </Col>
+        </Row>
+        <Row className="">
+          <Col className="d-inline-flex flex-row flex-nowrap justify-content-center">
+            {game.dealerHand.cards.map((card) => {
+              return <Card card={card} />;
+            })}
+          </Col>
+        </Row>
+        <br />
+        <Row>
+          <Col>
+            <h3>Your hand ({game.playerHand.value})</h3>
+          </Col>
+        </Row>
+        <Row className="d-flex flex-row flex-nowrap justify-content-center">
+          <Col
+            className="d-flex justify-content-center"
+            style={{ minWidth: 0 }}
           >
-            Stand
-          </Button>
-        </Col>
-        <Col xs={1}>
-          <Button
-            style={{ backgroundColor: "#2D6233" }}
-            onClick={() => {
-              onHitClick();
-            }}
-            disabled={game.state !== "active"}
-            variant="dark"
-          >
-            Hit
-          </Button>
-        </Col>
-        <Col xs={4} />
-      </Row>
+            {game.playerHand.cards.map((card) => {
+              return <Card card={card} />;
+            })}
+          </Col>
+        </Row>
+        <center>
+          <Row style={rowPadding} a>
+            <Col>
+              <Button
+                style={{ backgroundColor: "#7792792" }}
+                onClick={() => {
+                  onStandClick();
+                }}
+                disabled={game.state !== "active"}
+                variant="light"
+              >
+                Stand
+              </Button>
+            </Col>
+            <Col>
+              <Button
+                style={{ backgroundColor: "#2D6233" }}
+                onClick={() => {
+                  onHitClick();
+                }}
+                disabled={game.state !== "active"}
+                variant="dark"
+              >
+                Hit
+              </Button>
+            </Col>
+          </Row>
+        </center>
+      </center>
     </React.Fragment>
   );
 }
