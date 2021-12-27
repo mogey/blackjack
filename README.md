@@ -1,9 +1,5 @@
 # Blackjack
 
-Client: ![Client build status](http://chi2.ytbn.wiki:8080/job/Blackjack-client/badge/icon?style=flat-square)
-
-Server: ![Server build status](http://chi2.ytbn.wiki:8080/job/Blackjack-server/badge/icon?style=flat-square)
-
 ![Picture of the game's UI](Blackjack.png)
 
 ## Tech used
