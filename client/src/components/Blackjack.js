@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { getGame, replenish } from "../services/blackjack.service";
 import Active from "./states/Active";
 import Bet from "./states/Bet";
+import useSound from 'use-sound';
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import replenishSfx from '../audio/replenish.mp3';
 
 export default function Blackjack(props) {
-  const { user } = props; //destructure props so we know what we have
+  const { user } = props; //destructure props so swe know what we have
 
   //Set up initial game stage before page loads in case game is rendered
   const [game, setGame] = useState({
@@ -29,6 +31,7 @@ export default function Blackjack(props) {
   const [error, setError] = useState({ isError: false });
   const [refetch, setRefetch] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [playReplenish] = useSound(replenishSfx);
   const refetcher = { refetch: refetch, setRefetch: setRefetch }; //allows us to trigger useEffect from within children components
 
   //Loads game state from backend
@@ -45,6 +48,7 @@ export default function Blackjack(props) {
 
   //Hands click for replenish button
   const onReplenishClick = () => {
+    playReplenish();
     replenish(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);

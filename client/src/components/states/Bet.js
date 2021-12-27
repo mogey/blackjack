@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Row, Col, Button, Form } from "react-bootstrap";
+import useSound from 'use-sound';
 import { bet, deal } from "../../services/blackjack.service";
+import betSfx from '../../audio/bet.mp3';
+
 export default function Bet(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
 
   const [betAmount, setBetAmount] = useState();
+  const [playBet] = useSound(betSfx)
   const rowPadding = {
     margin: "25px auto",
     width: "50%",
@@ -17,6 +21,7 @@ export default function Bet(props) {
   const handleBetClick = () => {
     bet(betAmount, user).then((response) => {
       if (response.status === 200) {
+        playBet();
         setBetAmount();
         refetcher.setRefetch(!refetcher.refetch);
       } else {

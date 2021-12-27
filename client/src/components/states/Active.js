@@ -2,8 +2,14 @@ import React from "react";
 import { Row, Col, Button, Alert } from "react-bootstrap";
 import { hit, newGame, stand } from "../../services/blackjack.service";
 import Card from "../Cards/Card";
+import useSound from "use-sound";
+
+import hitSfx from '../../audio/hit.mp3';
+
 export default function Active(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
+
+  const [playHit] = useSound(hitSfx);
 
   const rowPadding = { marginTop: "50px" };
 
@@ -24,6 +30,7 @@ export default function Active(props) {
   };
 
   const onHitClick = () => {
+    playHit();
     hit(user).then((response) => {
       if (response.status === 200) {
         refetcher.setRefetch(!refetcher.refetch);

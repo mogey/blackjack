@@ -1,0 +1,31 @@
+pipeline {
+  agent any
+
+  tools {
+    nodejs "NodeJS 15"
+  }
+
+  stages {
+    stage("Checkout Code") {
+      steps {
+        git 'https://github.com/mogey/blackjack.git'
+      }
+    }
+    stage("Build") {
+      steps {
+
+        dir("client") {
+          sh "npm i"
+          sh "DISABLE_ESLINT_PLUGIN=true npm run build"
+        }
+      }
+
+    }
+    stage("Deploy") {
+      steps {
+        sh "sudo rm -rf /home/atlasadmin/www/mohsinq.com/blackjack"
+        sh "sudo cp -r ${WORKSPACE}/client/build/ /home/atlasadmin/www/mohsinq.com/blackjack"
+      }
+    }
+  }
+}
