@@ -23,6 +23,7 @@ pipeline {
     }
     stage("Deploy") {
       steps {
+        archiveArtifacts artifacts: 'client/**/*.*', followSymlinks: false
         sh "sudo rm -rf /home/atlasadmin/www/mohsinq.com/blackjack"
         sh "sudo cp -r ${WORKSPACE}/client/build/ /home/atlasadmin/www/mohsinq.com/blackjack"
       }
