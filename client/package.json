@@ -1,6 +1,7 @@
 {
   "name": "client",
   "version": "0.1.0",
+  "homepage": "http://mohsinq.com/blackjack",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.4.0",
@@ -44,5 +45,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5001"
+  "proxy": "http://server:5000"
 }
