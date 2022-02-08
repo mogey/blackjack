@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getGame, replenish } from "../services/blackjack.service";
 import Active from "./states/Active";
 import Bet from "./states/Bet";
-import useSound from 'use-sound';
+import useSound from "use-sound";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
-import replenishSfx from '../audio/replenish.mp3';
+import replenishSfx from "../audio/replenish.mp3";
 
 export default function Blackjack(props) {
   const { user } = props; //destructure props so swe know what we have

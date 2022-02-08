@@ -4,7 +4,7 @@ import { hit, newGame, stand } from "../../services/blackjack.service";
 import Card from "../Cards/Card";
 import useSound from "use-sound";
 
-import hitSfx from '../../audio/hit.mp3';
+import hitSfx from "../../audio/hit.mp3";
 
 export default function Active(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
