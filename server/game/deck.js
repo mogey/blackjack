@@ -39,13 +39,18 @@ export default class Deck {
     suits.forEach((suit, i) => {
       values.forEach((value, j) => {
         let cost = 0;
-        if (value === "J" || value === "K" || value === "Q") {
-          cost = 10;
-        } else if (value !== "A") {
-          cost = parseInt(value);
-        } else {
+        if (value === "J") {
           cost = 11;
+        } else if (value === "Q") {
+          cost = 12;
+        } else if (value === "K") {
+          cost = 13;
+        } else if (value === "A") {
+          cost = 14;
+        } else {
+          cost = parseInt(value);
         }
+
         this.addCard(new Card(suit, value, cost));
       });
     });
@@ -114,22 +119,8 @@ export default class Deck {
   getDeckValue() {
     this.value = 0;
 
-    //Sort the deck by card "costs" so that Ace is at the back
-    let sortedDeck = [...this.cards];
-    sortedDeck.sort((a, b) => {
-      if (a.cost > b.cost) {
-        return 1;
-      }
-      if (a.cost < b.cost) {
-        return -1;
-      }
-      if (a.cost === b.cost) {
-        return 0;
-      }
-    });
-
     //Loop through the deck and calculate value of each card
-    sortedDeck.forEach((card) => {
+    this.sortByCost(this.cards).forEach((card) => {
       if (card.value === "J" || card.value === "K" || card.value === "Q") {
         this.value += 10;
       } else if (card.value !== "A") {
@@ -145,6 +136,101 @@ export default class Deck {
     });
 
     return this.value;
+  }
+
+  sortByCost(deck) {
+    let sortedDeck = [...deck];
+
+    //Sort the deck by card "costs" so that Ace is at the back
+    sortedDeck.sort((a, b) => {
+      if (a.cost > b.cost) {
+        return 1;
+      }
+      if (a.cost < b.cost) {
+        return -1;
+      }
+      if (a.cost === b.cost) {
+        return 0;
+      }
+    });
+    return sortedDeck;
+  }
+
+  sortBySuit(deck) {
+    let sortedDeck = [...deck];
+
+    sortedDeck.sort((a, b) => {
+      if (a.suit === b.suit) {
+        return 0;
+      }
+      if (a.suit < b.suit) {
+        return -1;
+      }
+      if (a.suit > b.suit) {
+        return 1;
+      }
+    });
+    return sortedDeck;
+  }
+
+  isFlush() {
+    let sortedDeck = sortBySuit(this.cards);
+
+    if (sortedDeck[i].suit === sortedDeck[i - sortedDeck.length].suit) {
+      return true;
+    }
+
+    return false;
+  }
+
+  isStraight() {
+    let sortedDeck = this.sortByCost(this.cards);
+
+    //if the first card is ace check if its ace 2 3 4 5 or if last card is ace check if its k q j 10
+
+    if (sortedDeck[4].cost === 14) {
+      if (
+        sortedDeck[3].cost === 13 &&
+        sortedDeck[2].cost === 12 &&
+        sortedDeck[1].cost === 11 &&
+        sortedDeck[0].cost === 10
+      ) {
+        return true;
+      }
+      if (
+        sortedDeck[3].cost === 5 &&
+        sortedDeck[2].cost === 4 &&
+        sortedDeck[1].cost === 3 &&
+        sortedDeck[0].cost === 2
+      ) {
+        return true;
+      }
+    }
+
+    for (let i = 1; i < 4; i++) {
+      //2 3 4 5, check if we're we are  is equal to last index + 1
+      if (sortedDeck[i].cost !== sortedDeck[i - 1].cost + 1) {
+        return false;
+      }
+
+      return true;
+    }
+  }
+
+  fourOfAkind() {
+    let sortedDeck = this.sortByCost(this.cards);
+
+    for (let i = 0; i < 3; i++) {
+      if (!(sortedDeck[i].value === sortedDeck[i + 1].value)) {
+        return false;
+      }
+    }
+    for (let i = 4; i != 1; i--) {
+      if (!(sortedDeck[i].value === sortedDeck[i - 1].value)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   reset() {
