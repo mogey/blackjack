@@ -23,8 +23,8 @@ pipeline {
     }
     stage("Deploy") {
       steps {
-        zip zipFile: '${BUILD_TAG}', dir: 'client/build'
-        archiveArtifacts artifacts: '${BUILD_TAG}.zip', followSymlinks: false
+        //zip zipFile: '${BUILD_TAG}', dir: 'client/build'
+        //archiveArtifacts artifacts: '${BUILD_TAG}.zip', followSymlinks: false
         sh "sudo rm -rf /home/atlasadmin/www/mohsinq.com/blackjack"
         sh "sudo cp -r ${WORKSPACE}/client/build/ /home/atlasadmin/www/mohsinq.com/blackjack"
       }
