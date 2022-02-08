@@ -38,20 +38,7 @@ export default class Deck {
     this.reset();
     suits.forEach((suit, i) => {
       values.forEach((value, j) => {
-        let cost = 0;
-        if (value === "J") {
-          cost = 11;
-        } else if (value === "Q") {
-          cost = 12;
-        } else if (value === "K") {
-          cost = 13;
-        } else if (value === "A") {
-          cost = 14;
-        } else {
-          cost = parseInt(value);
-        }
-
-        this.addCard(new Card(suit, value, cost));
+        this.addCard(new Card(suit, value));
       });
     });
   }
@@ -138,6 +125,44 @@ export default class Deck {
     return this.value;
   }
 
+  getPokerValue() {
+    //royal flush
+    if (this.isFlush()) {
+      let sortedDeck = this.sortByCost(this.cards);
+      if (sortedDeck[4].cost === 14) {
+        if (
+          sortedDeck[3].cost === 13 &&
+          sortedDeck[2].cost === 12 &&
+          sortedDeck[1].cost === 11 &&
+          sortedDeck[0].cost === 10
+        ) {
+          return 10;
+        }
+      }
+    }
+    //straight flush
+    if (this.isFlush() && this.isStraight()) {
+      return 9;
+    }
+    //four of a kind
+    if (this.isFourOfAkind()) {
+      return 8;
+    }
+    //full house
+    //flush
+    if (this.isFlush()) {
+      return 6;
+    }
+    //straight
+    if (this.isStraight()) {
+      return 5;
+    }
+    //three of a kind
+    //two pair
+    //pair
+    //high card
+  }
+
   sortByCost(deck) {
     let sortedDeck = [...deck];
 
@@ -174,9 +199,9 @@ export default class Deck {
   }
 
   isFlush() {
-    let sortedDeck = sortBySuit(this.cards);
+    let sortedDeck = this.sortBySuit(this.cards);
 
-    if (sortedDeck[i].suit === sortedDeck[i - sortedDeck.length].suit) {
+    if (sortedDeck[0].suit === sortedDeck[4].suit) {
       return true;
     }
 
@@ -217,7 +242,7 @@ export default class Deck {
     }
   }
 
-  fourOfAkind() {
+  isFourOfAkind() {
     let sortedDeck = this.sortByCost(this.cards);
 
     for (let i = 0; i < 3; i++) {

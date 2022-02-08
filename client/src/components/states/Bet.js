@@ -3,12 +3,14 @@ import { Row, Col, Button, Form } from "react-bootstrap";
 import useSound from "use-sound";
 import { bet, deal } from "../../services/blackjack.service";
 import betSfx from "../../audio/bet.mp3";
+import dealSfx from "../../audio/deal.mp3";
 
 export default function Bet(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
 
   const [betAmount, setBetAmount] = useState();
   const [playBet] = useSound(betSfx);
+  const [playDeal] = useSound(dealSfx);
   const rowPadding = {
     margin: "25px auto",
     width: "50%",
@@ -20,6 +22,9 @@ export default function Bet(props) {
 
   const handleBetClick = (event) => {
     event.preventDefault();
+    if (!betAmount) {
+      return handleDealClick(event);
+    }
     bet(betAmount, user).then((response) => {
       if (response.status === 200) {
         playBet();
@@ -31,9 +36,10 @@ export default function Bet(props) {
     });
   };
 
-  const handleDealClick = () => {
+  const handleDealClick = (event) => {
     deal(user).then((response) => {
       if (response.status === 200) {
+        playDeal();
         refetcher.setRefetch(!refetcher.refetch);
       }
     });
@@ -41,23 +47,23 @@ export default function Bet(props) {
 
   return (
     <React.Fragment>
-      <Row style={rowPadding} className="justify-content-center">
-        <Col>
-          <Form inline onSubmit={handleBetClick}>
-            <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
-            <Form.Control
-              autoFocus
-              onChange={(e) => {
-                handleBetChange(e);
-              }}
-              value={betAmount}
-              placeholder="Bet amount"
-              style={{ marginRight: "10px" }}
-            />
-          </Form>
-        </Col>
-      </Row>
       <center>
+        <Row style={rowPadding} className="justify-content-center">
+          <Col>
+            <Form inline onSubmit={handleBetClick}>
+              <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
+              <Form.Control
+                autoFocus
+                onChange={(e) => {
+                  handleBetChange(e);
+                }}
+                value={betAmount}
+                placeholder="Bet amount"
+                style={{ marginRight: "10px" }}
+              />
+            </Form>
+          </Col>
+        </Row>
         <Row style={rowPadding}>
           <Col>
             <Button

@@ -1,7 +1,6 @@
 {
   "name": "client",
   "version": "0.1.0",
-  "homepage": "http://mohsinq.com/blackjack",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.4.0",
@@ -14,7 +13,9 @@
     "emotion": "^11.0.0",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.1",
+    "react-bootstrap-icons": "^1.7.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
     "react-scripts": "4.0.3",
     "use-sound": "^4.0.1",
     "web-vitals": "^1.1.2"
@@ -43,5 +44,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://server:5000"
+  "proxy": "http://localhost:5001"
 }

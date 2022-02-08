@@ -3,8 +3,9 @@ import { getGame, replenish } from "../services/blackjack.service";
 import Active from "./states/Active";
 import Bet from "./states/Bet";
 import useSound from "use-sound";
-import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import replenishSfx from "../audio/replenish.mp3";
+import { GiCoinflip, GiHelp, GiPiggyBank } from "react-icons/gi";
 
 export default function Blackjack(props) {
   const { user } = props; //destructure props so swe know what we have
@@ -64,18 +65,26 @@ export default function Blackjack(props) {
             className="d-flex justify-content-between"
             style={{ position: "relative", top: "5px" }}
           >
+            {/*
+            <Button
+              variant="link"
+              style={{ position: "relative", top: "10px" }}
+            >
+              <GiHelp />
+          </Button>*/}
+
             <Col className="d-flex justify-content-center">
-              <h4 style={{ position: "relative", top: "20px" }}>
-                Bank: ${game.playerCredits}
-              </h4>
+              <h5 style={{ position: "relative", top: "20px" }}>
+                <GiPiggyBank /> : ${game.playerCredits}
+              </h5>
             </Col>
             <Col className="d-flex justify-content-center">
-              <h2>Blackjack</h2>
+              <h3>Blackjack</h3>
             </Col>
             <Col className="d-flex justify-content-center">
-              <h4 style={{ position: "relative", top: "20px" }}>
-                Bet: ${game.betAmount}
-              </h4>
+              <h5 style={{ position: "relative", top: "20px" }}>
+                <GiCoinflip /> : ${game.betAmount}
+              </h5>
             </Col>
           </Row>
           <hr />
@@ -120,6 +129,7 @@ export default function Blackjack(props) {
             Error connecting to backend: {error.errorMessage}
           </Alert>
         ) : null}
+        <Spinner animation="grow" />
       </div>
     );
   }
