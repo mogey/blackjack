@@ -1,21 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Row, Col, Button, Alert } from "react-bootstrap";
 import { hit, newGame, stand } from "../../services/blackjack.service";
 import Card from "../Cards/Card";
 import useSound from "use-sound";
+import useKeyPress from "../../util/useKeyPress";
 
 import hitSfx from "../../audio/hit.mp3";
+import standSfx from "../../audio/stand.mp3";
 
 export default function Active(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
 
   const [playHit] = useSound(hitSfx);
+  const [playStand] = useSound(standSfx);
+
+  const hitPressed = useKeyPress("h");
+  const standPressed = useKeyPress("s");
+  const newPressed = useKeyPress("n");
+
+  useEffect(() => {
+    if (hitPressed) {
+      onHitClick();
+    }
+    if (standPressed) {
+      onStandClick();
+    }
+    if (newPressed && game.state !== "active") {
+      onNewGameClick();
+    }
+  }, [hitPressed, standPressed, newPressed]);
 
   const rowPadding = { marginTop: "50px" };
 
   const onStandClick = () => {
     stand(user).then((response) => {
       if (response.status === 200) {
+        playStand();
         refetcher.setRefetch(!refetcher.refetch);
       }
     });

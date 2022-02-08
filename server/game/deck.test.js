@@ -3,22 +3,29 @@ import Card from "./card.js";
 
 let MyDeck = new Deck();
 
-//Test for royal flush
+//Test for royal flush [10]
+MyDeck = new Deck([
+  new Card("clubs", "A"),
+  new Card("clubs", "K"),
+  new Card("clubs", "Q"),
+  new Card("clubs", "J"),
+  new Card("clubs", "10"),
+]);
+console.log(MyDeck.getPokerValue());
+//Test for straight flush ```needs to be implemented [9]
 
-//Test for straight flush
+//Test for four of a kind ```implementation done [8]
 
-//Test for four of a kind
+//Test for full house [7]
 
-//Test for full house case
+//test for flush ```implementation done [6]
 
-//test for flush
+//test for straight ```implementation done [5]
 
-//test for straight
+//test for three of a kind [4]
 
-//test for three of a kind
+//test for two pairs 3
 
-//test for two pairs
+//test for 1 pair [2]
 
-//test for 1 pair
-
-//test for high card
+//test for high card [1]
