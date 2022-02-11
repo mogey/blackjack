@@ -6,7 +6,8 @@
     "mongoose": "^5.12.13",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
-    "sequelize": "^6.6.2"
+    "sequelize": "^6.6.2",
+    "socket.io": "^4.4.1"
   },
   "scripts": {
     "start": "nodemon start"

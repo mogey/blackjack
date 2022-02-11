@@ -29,6 +29,7 @@ export default class Deck {
       this.cards = [];
     }
     this.value = this.getDeckValue();
+    this.pokerValue = this.getPokerValue();
   }
 
   /**
@@ -71,14 +72,8 @@ export default class Deck {
    * @param {boolean} visible set if the card should be visible when drawn from the deck
    * @returns {Card} the last Card in the Deck array
    */
-  drawCard(visible) {
-    if (visible) {
-      const card = this.cards.pop();
-      card.visible = true;
-      return card;
-    } else {
-      return this.cards.pop();
-    }
+  drawCard() {
+    return this.cards.pop();
   }
 
   /**
@@ -126,6 +121,10 @@ export default class Deck {
   }
 
   getPokerValue() {
+    this.pokerValue = 0;
+    if (this.cards.length === 0) {
+      return this.pokerValue;
+    }
     //royal flush
     if (this.isFlush()) {
       let sortedDeck = this.sortByCost(this.cards);
@@ -136,31 +135,44 @@ export default class Deck {
           sortedDeck[1].cost === 11 &&
           sortedDeck[0].cost === 10
         ) {
-          return 10;
+          return (this.pokerValue = 10);
         }
       }
     }
     //straight flush
     if (this.isFlush() && this.isStraight()) {
-      return 9;
+      return (this.pokerValue = 9);
     }
     //four of a kind
     if (this.isFourOfAkind()) {
-      return 8;
+      return (this.pokerValue = 8);
     }
     //full house
+    if (this.isFullHouse()) {
+      return (this.pokerValue = 7);
+    }
     //flush
     if (this.isFlush()) {
-      return 6;
+      return (this.pokerValue = 6);
     }
     //straight
     if (this.isStraight()) {
-      return 5;
+      return (this.pokerValue = 5);
     }
     //three of a kind
+    if (this.isThreeOfAKind()) {
+      return (this.pokerValue = 4);
+    }
     //two pair
+    if (this.isTwoPair()) {
+      return (this.pokerValue = 3);
+    }
     //pair
+    if (this.isOnePair()) {
+      return (this.pokerValue = 2);
+    }
     //high card
+    return (this.pokerValue = 1);
   }
 
   sortByCost(deck) {
@@ -245,17 +257,116 @@ export default class Deck {
   isFourOfAkind() {
     let sortedDeck = this.sortByCost(this.cards);
 
-    for (let i = 0; i < 3; i++) {
-      if (!(sortedDeck[i].value === sortedDeck[i + 1].value)) {
-        return false;
+    if (sortedDeck[0] === sortedDeck[3]) {
+      for (let i = 0; i < 3; i++) {
+        console.log(sortedDeck[i].value);
+        if (!(sortedDeck[i].value === sortedDeck[i + 1].value)) {
+          return false;
+        }
       }
     }
-    for (let i = 4; i != 1; i--) {
-      if (!(sortedDeck[i].value === sortedDeck[i - 1].value)) {
-        return false;
+
+    if (sortedDeck[4] === sortedDeck[1]) {
+      for (let i = 4; i != 1; i--) {
+        console.log(sortedDeck[i].value);
+        if (!(sortedDeck[i].value === sortedDeck[i - 1].value)) {
+          return false;
+        }
       }
     }
     return true;
+  }
+
+  isFullHouse() {
+    let sortedDeck = this.sortByCost(this.cards);
+    if (
+      sortedDeck[0].value === sortedDeck[1].value &&
+      sortedDeck[1].value === sortedDeck[2].value &&
+      sortedDeck[3].value === sortedDeck[4].value
+    ) {
+      return true;
+    }
+    if (
+      sortedDeck[0].value === sortedDeck[1].value &&
+      sortedDeck[2].value === sortedDeck[3].value &&
+      sortedDeck[3].value === sortedDeck[4].value
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  isThreeOfAKind() {
+    let sortedDeck = this.sortByCost(this.cards);
+
+    if (
+      sortedDeck[0].value === sortedDeck[1].value &&
+      sortedDeck[1].value === sortedDeck[2].value
+    ) {
+      return true;
+    }
+    if (
+      sortedDeck[1].value === sortedDeck[2].value &&
+      sortedDeck[2].value === sortedDeck[3].value
+    ) {
+      return true;
+    }
+
+    if (
+      sortedDeck[2].value === sortedDeck[3].value &&
+      sortedDeck[3].value === sortedDeck[4].value
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  isTwoPair() {
+    let sortedDeck = this.sortByCost(this.cards);
+
+    if (
+      sortedDeck[0].value === sortedDeck[1].value &&
+      sortedDeck[2].value === sortedDeck[3].value
+    ) {
+      return true;
+    }
+
+    if (
+      sortedDeck[0].value === sortedDeck[1].value &&
+      sortedDeck[3].value === sortedDeck[4].value
+    ) {
+      return true;
+    }
+
+    if (
+      sortedDeck[1].value === sortedDeck[2].value &&
+      sortedDeck[3].value === sortedDeck[4].value
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  isOnePair() {
+    let sortedDeck = this.sortByCost(this.cards);
+
+    if (sortedDeck[0].value === sortedDeck[1].value) {
+      return true;
+    }
+
+    if (sortedDeck[1].value === sortedDeck[2].value) {
+      return true;
+    }
+
+    if (sortedDeck[2].value === sortedDeck[3].value) {
+      return true;
+    }
+
+    if (sortedDeck[3].value === sortedDeck[4].value) {
+      return true;
+    }
+    return false;
   }
 
   reset() {

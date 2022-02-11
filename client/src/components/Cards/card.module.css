@@ -9,7 +9,7 @@
 
   animation: deal 0.5s ease forwards;
   opacity: 0;
-  transform: scale(2);
+  transform: scale(5);
 
   height: auto;
   object-fit: contain;
@@ -59,6 +59,7 @@
 @keyframes deal {
   to {
     opacity: 1;
+    right: 800px;
     transform: scale(1);
   }
 }

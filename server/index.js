@@ -4,6 +4,7 @@ dotenv.config();
 import routes from "./routes/api.js";
 import bodyParser from "body-parser";
 import Sequelize from "sequelize";
+import http from "http";
 const { DataTypes } = Sequelize;
 
 //Initialize DB connection
@@ -35,27 +36,10 @@ export const Player = sequelizeInstance.define("Player", {
   },
   money: {
     type: DataTypes.BIGINT,
-    defaultValue: 1000,
+    defaultValue: 20,
   },
-  betAmount: {
-    type: DataTypes.BIGINT,
-    defaultValue: 0,
-  },
-  playerHand: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  dealerHand: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  gameDeck: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  state: {
+  name: {
     type: DataTypes.STRING,
-    defaultValue: "bet",
   },
 });
 
@@ -65,9 +49,15 @@ await Player.sync().then((response) => {
 });
 
 const app = express();
+const server = http.createServer(app);
 
 const port = process.env.PORT || 5000;
 
+server.listen(port, () => {
+  console.log("Started socket.io server listening on " + port);
+});
+
+/*
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -84,3 +74,4 @@ app.use("/api", routes);
 app.listen(port, () => {
   console.log("Server is listening on port " + port);
 });
+*/
