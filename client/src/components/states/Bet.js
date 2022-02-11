@@ -78,16 +78,19 @@ export default function Bet(props) {
   return (
     <React.Fragment>
       <center>
-        <Row style={rowPadding} className="justify-content-center">
-          <Col>
-            <Form inline onSubmit={handleBetClick}>
+        <Row
+          style={rowPadding}
+          className="d-flex flex-row flex-nowrap justify-content-center"
+        >
+          <Col className="d-inline-flex flex-row flex-nowrap justify-content-center">
+            <Form onSubmit={handleBetClick}>
               <Form.Label
                 style={{ margin: "10px", width: "100%" }}
                 className="text-center"
               >
                 Place your bet
               </Form.Label>
-              <InputGroup className="mx-auto">
+              <InputGroup className="d-inline-flex flex-row flex-nowrap justify-content-center">
                 <Button
                   variant="danger"
                   id="-"
