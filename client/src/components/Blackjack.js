@@ -75,7 +75,8 @@ export default function Blackjack(props) {
 
             <Col className="d-flex justify-content-center">
               <h5 style={{ position: "relative", top: "20px" }}>
-                <GiPiggyBank /> : ${game.playerCredits}
+                <GiPiggyBank style={{ position: "relative", top: "-1px" }} /> |
+                ${game.playerCredits}
               </h5>
             </Col>
             <Col className="d-flex justify-content-center">
@@ -83,7 +84,8 @@ export default function Blackjack(props) {
             </Col>
             <Col className="d-flex justify-content-center">
               <h5 style={{ position: "relative", top: "20px" }}>
-                <GiCoinflip /> : ${game.betAmount}
+                <GiCoinflip style={{ position: "relative", top: "-1px" }} /> | $
+                {game.betAmount}
               </h5>
             </Col>
           </Row>

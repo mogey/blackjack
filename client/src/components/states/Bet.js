@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Row, Col, Button, Form } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Button,
+  Form,
+  InputGroup,
+  FormControl,
+} from "react-bootstrap";
 import useSound from "use-sound";
 import { bet, deal } from "../../services/blackjack.service";
 import betSfx from "../../audio/bet.mp3";
@@ -8,7 +15,7 @@ import dealSfx from "../../audio/deal.mp3";
 export default function Bet(props) {
   const { game, refetcher, user } = props; //destructure props so we know what we have
 
-  const [betAmount, setBetAmount] = useState();
+  const [betAmount, setBetAmount] = useState(0);
   const [playBet] = useSound(betSfx);
   const [playDeal] = useSound(dealSfx);
   const rowPadding = {
@@ -17,12 +24,16 @@ export default function Bet(props) {
   };
 
   const handleBetChange = (e) => {
-    setBetAmount(e.target.value);
+    if (Number.isInteger(parseInt(e.target.value))) {
+      setBetAmount(parseInt(e.target.value));
+    } else {
+      setBetAmount(0);
+    }
   };
 
   const handleBetClick = (event) => {
     event.preventDefault();
-    if (!betAmount) {
+    if (betAmount === 0) {
       return handleDealClick(event);
     }
     bet(betAmount, user).then((response) => {
@@ -45,22 +56,79 @@ export default function Bet(props) {
     });
   };
 
+  const handleValueButton = (e) => {
+    if (e.target.id === "+") {
+      if (betAmount + 10 > game.playerCredits) {
+        return setBetAmount(game.playerCredits);
+      }
+      return setBetAmount(betAmount + 10);
+    }
+    if (e.target.id === "-") {
+      if (betAmount - 10 < 0) {
+        return setBetAmount(0);
+      }
+
+      return setBetAmount(betAmount - 10);
+    }
+    if (e.target.id === "++") {
+      return setBetAmount(game.playerCredits);
+    }
+  };
+
   return (
     <React.Fragment>
       <center>
         <Row style={rowPadding} className="justify-content-center">
           <Col>
             <Form inline onSubmit={handleBetClick}>
-              <Form.Label style={{ margin: "10px" }}>Place your bet</Form.Label>
-              <Form.Control
-                autoFocus
-                onChange={(e) => {
-                  handleBetChange(e);
-                }}
-                value={betAmount}
-                placeholder="Bet amount"
-                style={{ marginRight: "10px" }}
-              />
+              <Form.Label
+                style={{ margin: "10px", width: "100%" }}
+                className="text-center"
+              >
+                Place your bet
+              </Form.Label>
+              <InputGroup className="mx-auto">
+                <Button
+                  variant="danger"
+                  id="-"
+                  onClick={(e) => {
+                    handleValueButton(e);
+                  }}
+                  style={{ margin: "2px" }}
+                >
+                  -
+                </Button>
+                <FormControl
+                  autoFocus
+                  type="number"
+                  onChange={(e) => {
+                    handleBetChange(e);
+                  }}
+                  value={betAmount}
+                  placeholder="Bet amount"
+                  style={{ width: "75px", margin: "2px" }}
+                />
+                <Button
+                  variant="success"
+                  id="+"
+                  onClick={(e) => {
+                    handleValueButton(e);
+                  }}
+                  style={{ margin: "2px" }}
+                >
+                  +
+                </Button>
+                <Button
+                  variant="primary"
+                  id="++"
+                  onClick={(e) => {
+                    handleValueButton(e);
+                  }}
+                  style={{ margin: "2px 2px 2px 10px" }}
+                >
+                  ++
+                </Button>
+              </InputGroup>
             </Form>
           </Col>
         </Row>
@@ -73,17 +141,19 @@ export default function Bet(props) {
               Bet
             </Button>
           </Col>
+          {/*
           <Col>
             <Button
               style={{ backgroundColor: "#7792792" }}
               onClick={() => {
                 handleDealClick();
               }}
+              disabled={betAmount > 0}
               variant="light"
             >
               Deal
             </Button>
-          </Col>
+            </Col>*/}
         </Row>
       </center>
     </React.Fragment>
