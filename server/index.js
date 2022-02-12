@@ -5,6 +5,10 @@ import routes from "./routes/api.js";
 import bodyParser from "body-parser";
 import Sequelize from "sequelize";
 import http from "http";
+import { PlayerModel } from "./models/PlayerModel.js";
+import { PlayerRouter } from "./routes/PlayerRoutes.js";
+import { Server } from "socket.io";
+import { registerLobbyHandlers } from "./Services/LobbyService.js";
 const { DataTypes } = Sequelize;
 
 //Initialize DB connection
@@ -27,21 +31,7 @@ try {
   console.error("Unable to connect to the database:", error);
 }
 
-//Define the model for the Players table
-export const Player = sequelizeInstance.define("Player", {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true,
-  },
-  money: {
-    type: DataTypes.BIGINT,
-    defaultValue: 20,
-  },
-  name: {
-    type: DataTypes.STRING,
-  },
-});
+export const Player = PlayerModel(sequelizeInstance);
 
 //Create the table for Player if it does not already exist
 await Player.sync().then((response) => {
@@ -52,12 +42,20 @@ const app = express();
 const server = http.createServer(app);
 
 const port = process.env.PORT || 5000;
+const socketPort = process.env.SOCKPORT || parseInt(port) + 1;
 
-server.listen(port, () => {
-  console.log("Started socket.io server listening on " + port);
+server.listen(socketPort, () => {
+  console.log("Started socket.io server listening on " + socketPort);
 });
 
-/*
+const io = new Server(server, { cors: { origin: "http://localhost:3000" } });
+
+function registerEventHandlers(socket) {
+  registerLobbyHandlers(io, socket);
+}
+
+io.on("connection", registerEventHandlers);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -69,9 +67,8 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
-app.use("/api", routes);
+app.use("/api", PlayerRouter);
 
 app.listen(port, () => {
-  console.log("Server is listening on port " + port);
+  console.log("REST API is listening on port " + port);
 });
-*/

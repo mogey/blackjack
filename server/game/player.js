@@ -1,6 +1,6 @@
 import Deck from "./deck.js";
 
-export default class Player {
+export default class BJPlayer {
   constructor(id, name, money) {
     this.hand = new Deck();
     this.money = money;

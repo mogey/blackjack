@@ -23,6 +23,29 @@ export const getGame = async (user) => {
   }
 };
 
+export const login = async (name, pin) => {
+  const resp = await axiosInstance.post("/api/login", {
+    name: name,
+    pin: pin,
+  });
+  return resp;
+};
+
+export const register = async (name, pin) => {
+  try {
+    const resp = await axiosInstance
+      .post("/api/register", {
+        name: name,
+        pin: pin,
+      })
+      .then((response) => {
+        return response;
+      });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 /**
  * Validates userID from localStorage
  * @returns Axios reponse

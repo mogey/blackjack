@@ -5,10 +5,15 @@ import Bet from "./states/Bet";
 import useSound from "use-sound";
 import { Container, Row, Col, Button, Alert, Spinner } from "react-bootstrap";
 import replenishSfx from "../audio/replenish.mp3";
-import { GiCoinflip, GiHelp, GiPiggyBank } from "react-icons/gi";
+import {
+  GiCoinflip,
+  GiConsoleController,
+  GiHelp,
+  GiPiggyBank,
+} from "react-icons/gi";
 
 export default function Blackjack(props) {
-  const { user } = props; //destructure props so swe know what we have
+  const { user, socket } = props; //destructure props so swe know what we have
 
   //Set up initial game stage before page loads in case game is rendered
   const [game, setGame] = useState({

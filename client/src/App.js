@@ -1,24 +1,34 @@
 import { useEffect, useState } from "react";
 import Blackjack from "./components/Blackjack";
+import LoginForm from "./components/LoginForm";
 import { getUser } from "./services/blackjack.service";
+import { io } from "socket.io-client";
+import Lobby from "./components/Lobby";
 
 function App(props) {
   const localStorage = window.localStorage;
-  const [user, setUser] = useState(localStorage.getItem("userID")); //Get userID from local storage
+  const [user, setUser] = useState(localStorage.getItem("id")); //Get userID from local storage
+  const [socket, setsocket] = useState(null);
 
-  //Validate userID and set userID in localStorage
   useEffect(() => {
-    getUser().then((response) => {
-      if (response.status === 200 && response.data.id) {
-        localStorage.setItem("userID", response.data.id);
-        setUser(response.data.id);
-      }
-    });
-  }, [localStorage]);
-  console.log("User ID is " + user);
+    const newsocket = io("http://localhost:5002");
+    setsocket(newsocket);
+    return () => newsocket.close();
+  }, [setsocket]);
 
-  //Return the app if the user has a session
-  return user ? <Blackjack user={user}></Blackjack> : null;
+  useEffect(() => {
+    localStorage.setItem("id", user);
+  }, [user]);
+
+  return user ? (
+    socket ? (
+      <Lobby user={user} socket={socket}></Lobby>
+    ) : (
+      <h1>not connected</h1>
+    )
+  ) : (
+    <LoginForm setUser={setUser} />
+  );
 }
 
 export default App;
