@@ -1,325 +1,305 @@
 import Deck from "./deck.js";
 
-export default class Blackjack {
-  /**
-   *
-   * @param {int} credits player's credits
-   * @param {string} id UUID for player
-   * @param {int} betAmount player's bet amount
-   * @param {Deck} gameDeck game deck
-   * @param {Deck} playerHand player's hand
-   * @param {Deck} dealerHand dealer's hand
-   * @param {string} state game state
-   */
-  constructor(credits, id, betAmount, gameDeck, playerHand, dealerHand, state) {
-    //Instantiate the decks
-    this.gameDeck = new Deck(gameDeck);
-    this.playerHand = new Deck(playerHand);
-    this.dealerHand = new Deck(dealerHand);
+export default class BlackjackTable {
+  constructor(id, maxPlayers = 5) {
     this.id = id;
-    this.playerCredits = credits;
-    this.betAmount = betAmount;
-    this.state = state; //win, lose, tie, active, bet
-    this.message = "";
-
-    console.log(
-      "Game | ID| " +
-        this.id +
-        " | " +
-        "instanced started game with " +
-        this.playerCredits +
-        " credits."
-    );
+    this.gameType = "blackjack";
+    this.maxPlayers = maxPlayers;
+    this.players = new Map();
+    this.playerOrder = [];
+    this.dealer = { hand: new Deck(), revealed: false };
+    this.deck = new Deck();
+    this.state = "waiting"; // waiting, betting, playing, results
+    this.currentPlayerIndex = -1;
   }
 
-  /**
-   * Resets bet amount to zero and sets game state to bet
-   */
-  initRound() {
-    this.betAmount = 0;
-    this.state = "bet";
-    this.message = "";
-    console.log(
-      "Game | ID| " +
-        this.id +
-        " | " +
-        "started new round with " +
-        this.playerCredits +
-        " credits."
-    );
-  }
-
-  /**
-   * Resets game and deals cards to player and dealer, sets state to active, and then checks hands
-   */
-  deal() {
-    this.gameDeck.generateDeck();
-    this.gameDeck.shuffle();
-
-    this.playerHand.reset();
-    this.dealerHand.reset();
-
-    this.playerHand.addCard(this.gameDeck.drawCard(true));
-    this.playerHand.addCard(this.gameDeck.drawCard(true));
-    if (this.playerHand.getDeckValue() === 21) {
-      this.stand();
+  addPlayer(userId, username) {
+    if (this.players.size >= this.maxPlayers) return false;
+    if (this.players.has(userId)) return false;
+    this.players.set(userId, {
+      id: userId,
+      username,
+      hand: new Deck(),
+      bet: 0,
+      status: "idle",
+      result: null,
+      payout: 0,
+    });
+    this.playerOrder.push(userId);
+    if (this.state === "waiting" && this.players.size >= 1) {
+      this.state = "betting";
     }
-    this.dealerHand.addCard(this.gameDeck.drawCard(true));
-    this.dealerHand.addCard(this.gameDeck.drawCard(false));
-
-    this.state = "active";
-    this.message = "";
-    this.checkHands();
-    console.log("Game | ID| " + this.id + " | " + "dealt cards.");
+    return true;
   }
 
-  /**
-   *
-   * @param {int} betAmount Amount to bet
-   * Places bet when game state is "bet"
-   */
-  bet(betAmount) {
-    if (this.state === "bet" && betAmount >= 0) {
-      this.betAmount += betAmount;
-      this.playerCredits -= betAmount;
-      console.log(
-        "Game | ID| " +
-          this.id +
-          " | Bet " +
-          this.betAmount +
-          " credits, remaining: " +
-          this.playerCredits +
-          " credits."
-      );
-      this.deal();
+  removePlayer(userId) {
+    if (!this.players.has(userId)) return;
+    this.players.delete(userId);
+    this.playerOrder = this.playerOrder.filter((id) => id !== userId);
+
+    if (this.players.size === 0) {
+      this.state = "waiting";
+      this.currentPlayerIndex = -1;
+      return;
     }
-  }
 
-  /**
-   *Draws card for player and checks to see if they won
-   */
-  hit() {
-    if (this.state === "active" || this.state === "ready") {
-      this.state = "active";
-      const card = this.gameDeck.drawCard(true);
-      this.playerHand.addCard(card);
-      console.log("Game | ID| " + this.id + " | Hit");
-      if (this.playerHand.getDeckValue() > 21) {
-        this.lose();
-      }
-      if (this.playerHand.getDeckValue() === 21) {
-        this.stand();
+    if (this.state === "playing") {
+      const activePlayers = this.getActivePlayers();
+      if (activePlayers.length === 0) {
+        this.dealerPlay();
+      } else if (this.currentPlayerIndex >= this.playerOrder.length) {
+        this.currentPlayerIndex = 0;
+        this.advanceToNextActive();
       }
     }
+
+    if (this.state === "betting") {
+      this.checkAllBetsPlaced();
+    }
   }
 
-  /**
-   * Dealer reveals their cards and draws
-   */
-  stand() {
-    if (this.state === "active" || this.state === "ready") {
-      this.revealDealerCards();
-      console.log("Game | ID| " + this.id + " | Stood");
-      this.state = "stand";
-      if (this.dealerHand.getDeckValue() >= 17) {
-        this.checkWinner();
-      } else if (this.dealerHand.getDeckValue() <= 16) {
-        while (!(this.dealerHand.getDeckValue() >= 17)) {
-          console.log("Game | ID| " + this.id + " | Dealer draw");
-          this.dealerHand.addCard(this.gameDeck.drawCard());
-        }
-        this.checkWinner();
+  placeBet(userId, amount) {
+    if (this.state !== "betting") return false;
+    const player = this.players.get(userId);
+    if (!player) return false;
+    if (player.status === "ready") return false;
+    if (amount <= 0) return false;
+
+    player.bet = amount;
+    player.status = "ready";
+    this.checkAllBetsPlaced();
+    return true;
+  }
+
+  checkAllBetsPlaced() {
+    const allReady = this.playerOrder.every((id) => {
+      const p = this.players.get(id);
+      return p && p.status === "ready";
+    });
+    if (allReady && this.players.size > 0) {
+      this.startRound();
+    }
+  }
+
+  startRound() {
+    this.deck = new Deck();
+    this.deck.generateDeck();
+    this.deck.shuffle();
+    this.dealer.hand = new Deck();
+    this.dealer.revealed = false;
+
+    for (const [, player] of this.players) {
+      player.hand = new Deck();
+      player.result = null;
+      player.payout = 0;
+      player.status = "playing";
+    }
+
+    // Deal 2 rounds of cards
+    for (let round = 0; round < 2; round++) {
+      for (const pid of this.playerOrder) {
+        const p = this.players.get(pid);
+        p.hand.addCard(this.deck.drawCard(true));
+      }
+      if (round === 0) {
+        this.dealer.hand.addCard(this.deck.drawCard(true));
+      } else {
+        this.dealer.hand.addCard(this.deck.drawCard(false));
       }
     }
+
+    // Check for natural blackjacks
+    for (const pid of this.playerOrder) {
+      const p = this.players.get(pid);
+      if (p.hand.getDeckValue() === 21) {
+        p.status = "blackjack";
+      }
+    }
+
+    this.state = "playing";
+    this.currentPlayerIndex = 0;
+    this.advanceToNextActive();
   }
 
-  /**
-   * Sets player's credits to 1000 if it is 0
-   */
-  replenish() {
-    if (this.playerCredits === 0) {
-      this.playerCredits = 1000;
-
-      console.log("Game | ID| " + this.id + " | Replenished");
-    }
-  }
-
-  /**
-   *
-   * @returns {boolean} true if a winner is found
-   */
-  checkHands() {
-    console.log("Game | ID| " + this.id + " | Checking hands");
-    // if the player has more than 21 they bust
-    if (this.playerHand.getDeckValue() > 21) {
-      this.lose();
-      return true;
-    }
-
-    if (this.dealerHand.getDeckValue() > 21) {
-      this.win();
-      return true;
-    }
-
-    //if the player has 21 and the dealer doesn't the player won with blackjack
-    if (
-      this.playerHand.getDeckValue() === 21 &&
-      this.dealerHand.getDeckValue() !== 21
-    ) {
-      this.win();
-      return true;
-    }
-
-    //if the dealer has 21 and the player doesn't then the player loses
-    if (
-      this.dealerHand.getDeckValue() === 21 &&
-      this.playerHand.getDeckValue() !== 21
-    ) {
-      this.lose();
-      return true;
-    }
-
-    //if the dealer and the player both have blackjack then they tie
-    if (
-      this.dealerHand.getDeckValue() === 21 &&
-      this.playerHand.getDeckValue() === 21
-    ) {
-      this.tie();
-      return true;
-    }
-  }
-
-  /**
-   *
-   * @returns null, checks to see who is closest to 21
-   */
-  checkWinner() {
-    console.log("Game | ID| " + this.id + " | Checking for winner");
-    if (this.checkHands()) {
-      return;
-    }
-    let playerDiff = 21 - this.playerHand.getDeckValue();
-    let dealerDiff = 21 - this.dealerHand.getDeckValue();
-    if (playerDiff < dealerDiff) {
-      this.win();
-      return;
-    }
-    if (playerDiff > dealerDiff) {
-      this.lose();
-      return;
-    }
-    if (playerDiff === dealerDiff) {
-      this.tie();
-      return;
-    }
-  }
-
-  /**
-   * Sets all cards in dealerHand.cards to visible
-   */
-  revealDealerCards() {
-    this.dealerHand.cards.forEach((card) => {
-      card.visible = true;
+  getActivePlayers() {
+    return this.playerOrder.filter((pid) => {
+      const p = this.players.get(pid);
+      return p && p.status === "playing";
     });
   }
 
-  /**
-   * Called when player wins, adds betAmount * 2 credits to playerCredits
-   */
-  win() {
-    this.state = "win";
-    this.playerCredits += this.betAmount * 2;
-    console.log(
-      "Game | ID| " +
-        this.id +
-        " | Won!!! They have " +
-        this.playerCredits +
-        " credits"
-    );
-    this.revealDealerCards();
+  advanceToNextActive() {
+    while (this.currentPlayerIndex < this.playerOrder.length) {
+      const pid = this.playerOrder[this.currentPlayerIndex];
+      const p = this.players.get(pid);
+      if (p && p.status === "playing") return;
+      this.currentPlayerIndex++;
+    }
+    this.dealerPlay();
+  }
+
+  hit(userId) {
+    if (this.state !== "playing") return false;
+    const currentPid = this.playerOrder[this.currentPlayerIndex];
+    if (userId !== currentPid) return false;
+    const player = this.players.get(userId);
+    if (!player || player.status !== "playing") return false;
+
+    player.hand.addCard(this.deck.drawCard(true));
+    const handValue = player.hand.getDeckValue();
+
+    if (handValue > 21) {
+      player.status = "busted";
+      this.currentPlayerIndex++;
+      this.advanceToNextActive();
+    } else if (handValue === 21) {
+      player.status = "stood";
+      this.currentPlayerIndex++;
+      this.advanceToNextActive();
+    }
+    return true;
+  }
+
+  stand(userId) {
+    if (this.state !== "playing") return false;
+    const currentPid = this.playerOrder[this.currentPlayerIndex];
+    if (userId !== currentPid) return false;
+    const player = this.players.get(userId);
+    if (!player || player.status !== "playing") return false;
+
+    player.status = "stood";
+    this.currentPlayerIndex++;
+    this.advanceToNextActive();
+    return true;
+  }
+
+  dealerPlay() {
+    this.dealer.revealed = true;
+    this.dealer.hand.cards.forEach((c) => (c.visible = true));
+
+    const playersStillIn = this.playerOrder.some((pid) => {
+      const p = this.players.get(pid);
+      return p && (p.status === "stood" || p.status === "blackjack");
+    });
+
+    if (playersStillIn) {
+      while (this.dealer.hand.getDeckValue() < 17) {
+        this.dealer.hand.addCard(this.deck.drawCard(true));
+      }
+    }
+
+    this.calculateResults();
+  }
+
+  calculateResults() {
+    const dealerValue = this.dealer.hand.getDeckValue();
+    const dealerBusted = dealerValue > 21;
+    const dealerBlackjack =
+      this.dealer.hand.cards.length === 2 && dealerValue === 21;
+
+    for (const pid of this.playerOrder) {
+      const p = this.players.get(pid);
+      if (!p) continue;
+
+      if (p.status === "busted") {
+        p.result = "lose";
+        p.payout = 0;
+      } else if (p.status === "blackjack") {
+        if (dealerBlackjack) {
+          p.result = "tie";
+          p.payout = p.bet;
+        } else {
+          p.result = "blackjack";
+          p.payout = Math.floor(p.bet * 2.5);
+        }
+      } else if (dealerBusted) {
+        p.result = "win";
+        p.payout = p.bet * 2;
+      } else if (p.hand.getDeckValue() > dealerValue) {
+        p.result = "win";
+        p.payout = p.bet * 2;
+      } else if (p.hand.getDeckValue() < dealerValue) {
+        p.result = "lose";
+        p.payout = 0;
+      } else {
+        p.result = "tie";
+        p.payout = p.bet;
+      }
+    }
+
+    this.state = "results";
+  }
+
+  newRound(userId) {
+    const player = this.players.get(userId);
+    if (!player) return false;
+    player.status = "idle";
+    player.bet = 0;
+    player.hand = new Deck();
+    player.result = null;
+    player.payout = 0;
+
+    const allIdle = this.playerOrder.every((pid) => {
+      const p = this.players.get(pid);
+      return p && p.status === "idle";
+    });
+
+    if (allIdle) {
+      this.state = "betting";
+      this.dealer.hand = new Deck();
+      this.dealer.revealed = false;
+      this.currentPlayerIndex = -1;
+    }
+    return true;
   }
 
   /**
-   * Called when player loses
+   * Return sanitized state for a specific player.
+   * Never sends the deck. Hides dealer's face-down card during play.
    */
-  lose() {
-    this.state = "lose";
-    console.log("Game | ID| " + this.id + " | Lost.");
-    this.revealDealerCards();
-  }
-
-  /**
-   * Called when player ties, adds betAmmount to playerCredits
-   */
-  tie() {
-    this.state = "tie";
-    this.playerCredits += this.betAmount;
-    console.log(
-      "Game | ID| " +
-        this.id +
-        " | Tied, they have " +
-        this.playerCredits +
-        " credits"
-    );
-    this.revealDealerCards();
+  getStateForPlayer(userId) {
+    return {
+      tableId: this.id,
+      gameType: "blackjack",
+      state: this.state,
+      maxPlayers: this.maxPlayers,
+      currentPlayerIndex: this.currentPlayerIndex,
+      currentPlayerId:
+        this.currentPlayerIndex >= 0 &&
+        this.currentPlayerIndex < this.playerOrder.length
+          ? this.playerOrder[this.currentPlayerIndex]
+          : null,
+      players: this.playerOrder
+        .map((pid) => {
+          const p = this.players.get(pid);
+          if (!p) return null;
+          return {
+            id: pid,
+            username: p.username,
+            hand: p.hand.cards.map((c) => ({
+              value: c.value,
+              suit: c.suit,
+              visible: true,
+            })),
+            handValue: p.hand.getDeckValue(),
+            bet: p.bet,
+            status: p.status,
+            result: p.result,
+            payout: p.payout,
+            isYou: pid === userId,
+          };
+        })
+        .filter(Boolean),
+      dealer: {
+        hand: this.dealer.hand.cards.map((c) => ({
+          value: c.visible ? c.value : null,
+          suit: c.visible ? c.suit : null,
+          visible: c.visible,
+        })),
+        handValue: this.dealer.revealed
+          ? this.dealer.hand.getDeckValue()
+          : null,
+      },
+    };
   }
 }
-/*
-//Interactive test
-const game = new Blackjack();
-
-import readline from "readline";
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  prompt: "move>",
-});
-//console.log(JSON.stringify(game, null, 2));
-//console.log(game);
-
-console.log(game.playerCredits);
-rl.prompt();
-rl.on("line", (line) => {
-  if (line.includes("bet")) {
-    const input = line.split(" ");
-    game.bet(input[1]);
-    console.log(game.playerCredits);
-    console.log(game.betAmount);
-    console.log(game.state);
-  } else {
-    switch (line.trim()) {
-      case "new":
-        game.initRound();
-        console.log(game.dealerHand.cards[0]);
-        console.log(game.playerHand);
-        console.log(game.playerCredits);
-        console.log(game.betAmount);
-        console.log(game.state);
-        break;
-      case "hit":
-        game.hit();
-        console.log(game.dealerHand.cards[0]);
-        console.log(game.playerHand);
-        console.log(game.playerCredits);
-        console.log(game.betAmount);
-        console.log(game.state);
-        break;
-      case "stand":
-        game.stand();
-        console.log(game.dealerHand);
-        console.log(game.playerHand);
-        console.log(game.playerCredits);
-        console.log(game.betAmount);
-        console.log(game.state);
-        break;
-      case "close":
-        process.exit(0);
-      default:
-        console.log(`Say what? I might have heard '${line.trim()}'`);
-        break;
-    }
-  }
-  rl.prompt();
-});
-*/

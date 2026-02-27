@@ -1,27 +1,37 @@
 import React from "react";
 import styles from "./card.module.css";
-import { Image } from "react-bootstrap";
 
-export default function Card(props) {
-  const { card } = props;
+export default function Card({ card, small }) {
+  if (!card || !card.suit) {
+    return (
+      <img
+        src={`${process.env.PUBLIC_URL}/assets/2B.svg`}
+        className={`${styles.cardBack} ${small ? styles.small : ""}`}
+        alt="Unknown card"
+      />
+    );
+  }
 
-  const cardString = card.value + card.suit.charAt(0).toUpperCase(); //converts card to a string to find the mapped image name
+  const cardString = card.value + card.suit.charAt(0).toUpperCase();
+  const className = small
+    ? `${styles.card} ${styles.small}`
+    : styles.card;
 
   if (card.visible) {
     return (
       <img
-        src={"/blackjack/assets/" + cardString + ".svg"}
-        className={styles.card}
-        alt={card.value + " of " + card.suit}
-      ></img>
+        src={`${process.env.PUBLIC_URL}/assets/${cardString}.svg`}
+        className={className}
+        alt={`${card.value} of ${card.suit}`}
+      />
     );
   } else {
     return (
       <img
-        src="/blackjack/assets/2B.svg"
-        className={styles.cardNoShadow}
-        alt="Unknown card"
-      ></img>
+        src={`${process.env.PUBLIC_URL}/assets/2B.svg`}
+        className={`${styles.cardBack} ${small ? styles.small : ""}`}
+        alt="Hidden card"
+      />
     );
   }
 }

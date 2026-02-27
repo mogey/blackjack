@@ -1,12 +1,15 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import dotenv from "dotenv";
-dotenv.config();
-import routes from "./routes/api.js";
-import bodyParser from "body-parser";
 import Sequelize from "sequelize";
+import crypto from "crypto";
+import { setupSocketHandlers } from "./game/tableManager.js";
+
+dotenv.config();
 const { DataTypes } = Sequelize;
 
-//Initialize DB connection
+// --- Database ---
 export const sequelizeInstance = new Sequelize(
   process.env.MYSQL_DATABASE,
   process.env.MYSQL_USER_ACCOUNT,
@@ -14,73 +17,97 @@ export const sequelizeInstance = new Sequelize(
   {
     host: process.env.MYSQL_HOST,
     dialect: "mysql",
-    logging: () => {},
+    logging: false,
   }
 );
 
-//Check to make sure we connected
 try {
   await sequelizeInstance.authenticate();
-  console.log("Database connection has been established successfully.");
+  console.log("Database connection established.");
 } catch (error) {
-  console.error("Unable to connect to the database:", error);
+  console.error("Unable to connect to database:", error);
 }
 
-//Define the model for the Players table
-export const Player = sequelizeInstance.define("Player", {
+// User model (replaces old Player model)
+export const User = sequelizeInstance.define("User", {
   id: {
     type: DataTypes.UUID,
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
-  money: {
+  username: {
+    type: DataTypes.STRING(32),
+    unique: true,
+    allowNull: false,
+  },
+  pinHash: {
+    type: DataTypes.STRING(200),
+    allowNull: false,
+  },
+  balance: {
     type: DataTypes.BIGINT,
     defaultValue: 1000,
   },
-  betAmount: {
-    type: DataTypes.BIGINT,
-    defaultValue: 0,
-  },
-  playerHand: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  dealerHand: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  gameDeck: {
-    type: DataTypes.JSON,
-    defaultValue: { cards: [] },
-  },
-  state: {
-    type: DataTypes.STRING,
-    defaultValue: "bet",
-  },
 });
 
-//Create the table for Player if it does not already exist
-await Player.sync().then((response) => {
-  console.log("Created database table for player");
-});
+await User.sync();
+console.log("User table synced.");
 
+// --- Pin hashing ---
+export function hashPin(pin) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(pin.toString(), salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+export function verifyPin(pin, stored) {
+  const [salt, hash] = stored.split(":");
+  const testHash = crypto.scryptSync(pin.toString(), salt, 64).toString("hex");
+  return hash === testHash;
+}
+
+// --- Helpers for tableManager ---
+export async function getUserById(userId) {
+  return await User.findOne({ where: { id: userId } });
+}
+
+export async function updateBalance(userId, newBalance) {
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) return null;
+  if (newBalance !== null && newBalance !== undefined) {
+    user.balance = newBalance;
+    await user.save();
+  }
+  return user;
+}
+
+// --- Express + Socket.io ---
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
-const port = process.env.PORT || 5000;
-
+app.use(express.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   next();
 });
 
-app.use(bodyParser.json());
+import authRoutes from "./routes/api.js";
+app.use("/api", authRoutes);
 
-app.use("/api", routes);
+setupSocketHandlers(io, getUserById, updateBalance);
 
-app.listen(port, () => {
-  console.log("Server is listening on port " + port);
+const port = process.env.PORT || 5000;
+httpServer.listen(port, () => {
+  console.log("Server listening on port " + port);
 });

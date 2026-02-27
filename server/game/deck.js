@@ -2,26 +2,10 @@ import Card from "./card.js";
 
 const suits = ["clubs", "diamonds", "hearts", "spades"];
 const values = [
-  "A",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
+  "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K",
 ];
 
 export default class Deck {
-  /**
-   *
-   * @param {array} cards Instantiate Deck with an array of card objects, defaults to empty array
-   */
   constructor(cards) {
     if (cards) {
       this.cards = cards;
@@ -31,89 +15,50 @@ export default class Deck {
     this.value = this.getDeckValue();
   }
 
-  /**
-   * Resets deck and then generates a card for each suit and value
-   */
   generateDeck() {
     this.reset();
-    suits.forEach((suit, i) => {
-      values.forEach((value, j) => {
+    suits.forEach((suit) => {
+      values.forEach((value) => {
         this.addCard(new Card(suit, value));
       });
     });
   }
 
-  /**
-   *
-   * @param {int} max upper limit of random number to get from 0, exclusive
-   * @returns {int} between 0 and max-1
-   */
   getRandomInt(max) {
-    //Gets a random number from 0 to max-1
     return Math.floor(Math.random() * max);
   }
 
-  /**
-   * Shuffles card positions in deck's array
-   */
   shuffle() {
-    //Swap each card with a random card between it and the bottom of the deck
-    for (let i = this.cards.length - 1; i != 0; i--) {
-      let r = this.getRandomInt(i);
+    for (let i = this.cards.length - 1; i > 0; i--) {
+      let r = this.getRandomInt(i + 1);
       let temp = this.cards[r];
       this.cards[r] = this.cards[i];
       this.cards[i] = temp;
     }
   }
 
-  /**
-   *
-   * @param {boolean} visible set if the card should be visible when drawn from the deck
-   * @returns {Card} the last Card in the Deck array
-   */
   drawCard(visible) {
+    if (this.cards.length === 0) return null;
+    const card = this.cards.pop();
     if (visible) {
-      const card = this.cards.pop();
       card.visible = true;
-      return card;
-    } else {
-      return this.cards.pop();
     }
+    return card;
   }
 
-  /**
-   *
-   * @param {Card} card card to remove from Deck
-   */
-  removeCard(card) {
-    this.cards = this.cards.splice(this.cards.indexOf(card), 1);
-  }
-
-  /**
-   *
-   * @param {Card} card Card to add to Deck
-   * @returns {Card} returns Card added to deck
-   */
   addCard(card) {
     this.cards.push(card);
     return card;
   }
 
-  /**
-   *
-   * @returns {int} value of the deck accounting for aces
-   */
   getDeckValue() {
     this.value = 0;
-
-    //Loop through the deck and calculate value of each card
     this.sortByCost(this.cards).forEach((card) => {
       if (card.value === "J" || card.value === "K" || card.value === "Q") {
         this.value += 10;
       } else if (card.value !== "A") {
         this.value += parseInt(card.value);
       } else if (card.value === "A") {
-        //If an Ace being 11 puts us over, make it 1
         if (this.value + 11 > 21) {
           this.value += 1;
         } else {
@@ -121,144 +66,155 @@ export default class Deck {
         }
       }
     });
-
     return this.value;
-  }
-
-  getPokerValue() {
-    //royal flush
-    if (this.isFlush()) {
-      let sortedDeck = this.sortByCost(this.cards);
-      if (sortedDeck[4].cost === 14) {
-        if (
-          sortedDeck[3].cost === 13 &&
-          sortedDeck[2].cost === 12 &&
-          sortedDeck[1].cost === 11 &&
-          sortedDeck[0].cost === 10
-        ) {
-          return 10;
-        }
-      }
-    }
-    //straight flush
-    if (this.isFlush() && this.isStraight()) {
-      return 9;
-    }
-    //four of a kind
-    if (this.isFourOfAkind()) {
-      return 8;
-    }
-    //full house
-    //flush
-    if (this.isFlush()) {
-      return 6;
-    }
-    //straight
-    if (this.isStraight()) {
-      return 5;
-    }
-    //three of a kind
-    //two pair
-    //pair
-    //high card
   }
 
   sortByCost(deck) {
     let sortedDeck = [...deck];
-
-    //Sort the deck by card "costs" so that Ace is at the back
-    sortedDeck.sort((a, b) => {
-      if (a.cost > b.cost) {
-        return 1;
-      }
-      if (a.cost < b.cost) {
-        return -1;
-      }
-      if (a.cost === b.cost) {
-        return 0;
-      }
-    });
+    sortedDeck.sort((a, b) => a.cost - b.cost);
     return sortedDeck;
-  }
-
-  sortBySuit(deck) {
-    let sortedDeck = [...deck];
-
-    sortedDeck.sort((a, b) => {
-      if (a.suit === b.suit) {
-        return 0;
-      }
-      if (a.suit < b.suit) {
-        return -1;
-      }
-      if (a.suit > b.suit) {
-        return 1;
-      }
-    });
-    return sortedDeck;
-  }
-
-  isFlush() {
-    let sortedDeck = this.sortBySuit(this.cards);
-
-    if (sortedDeck[0].suit === sortedDeck[4].suit) {
-      return true;
-    }
-
-    return false;
-  }
-
-  isStraight() {
-    let sortedDeck = this.sortByCost(this.cards);
-
-    //if the first card is ace check if its ace 2 3 4 5 or if last card is ace check if its k q j 10
-
-    if (sortedDeck[4].cost === 14) {
-      if (
-        sortedDeck[3].cost === 13 &&
-        sortedDeck[2].cost === 12 &&
-        sortedDeck[1].cost === 11 &&
-        sortedDeck[0].cost === 10
-      ) {
-        return true;
-      }
-      if (
-        sortedDeck[3].cost === 5 &&
-        sortedDeck[2].cost === 4 &&
-        sortedDeck[1].cost === 3 &&
-        sortedDeck[0].cost === 2
-      ) {
-        return true;
-      }
-    }
-
-    for (let i = 1; i < 4; i++) {
-      //2 3 4 5, check if we're we are  is equal to last index + 1
-      if (sortedDeck[i].cost !== sortedDeck[i - 1].cost + 1) {
-        return false;
-      }
-
-      return true;
-    }
-  }
-
-  isFourOfAkind() {
-    let sortedDeck = this.sortByCost(this.cards);
-
-    for (let i = 0; i < 3; i++) {
-      if (!(sortedDeck[i].value === sortedDeck[i + 1].value)) {
-        return false;
-      }
-    }
-    for (let i = 4; i != 1; i--) {
-      if (!(sortedDeck[i].value === sortedDeck[i - 1].value)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   reset() {
     this.cards = [];
   }
+}
+
+// --- Poker Hand Evaluation ---
+
+const HAND_NAMES = {
+  1: "High Card",
+  2: "One Pair",
+  3: "Two Pair",
+  4: "Three of a Kind",
+  5: "Straight",
+  6: "Flush",
+  7: "Full House",
+  8: "Four of a Kind",
+  9: "Straight Flush",
+  10: "Royal Flush",
+};
+
+export function getHandName(rank) {
+  return HAND_NAMES[rank] || "Unknown";
+}
+
+/**
+ * Evaluate a 5-card poker hand and return a comparable score array.
+ * score[0] = hand rank (1-10), remaining elements are kickers for tiebreaking.
+ */
+export function evaluateFiveCards(cards) {
+  const costs = cards.map((c) => c.cost).sort((a, b) => a - b);
+  const suitSet = new Set(cards.map((c) => c.suit));
+  const isFlush = suitSet.size === 1;
+
+  let isStraight = true;
+  for (let i = 1; i < 5; i++) {
+    if (costs[i] !== costs[i - 1] + 1) {
+      isStraight = false;
+      break;
+    }
+  }
+  const isWheel =
+    costs[0] === 2 &&
+    costs[1] === 3 &&
+    costs[2] === 4 &&
+    costs[3] === 5 &&
+    costs[4] === 14;
+  if (isWheel) isStraight = true;
+
+  const counts = {};
+  costs.forEach((c) => {
+    counts[c] = (counts[c] || 0) + 1;
+  });
+
+  const groups = Object.entries(counts)
+    .map(([val, cnt]) => ({ value: parseInt(val), count: cnt }))
+    .sort((a, b) => b.count - a.count || b.value - a.value);
+
+  if (isFlush && isStraight) {
+    if (costs[0] === 10 && costs[4] === 14) return [10, 14];
+    if (isWheel) return [9, 5];
+    return [9, costs[4]];
+  }
+  if (groups[0].count === 4) {
+    return [8, groups[0].value, groups[1].value];
+  }
+  if (groups[0].count === 3 && groups[1].count === 2) {
+    return [7, groups[0].value, groups[1].value];
+  }
+  if (isFlush) {
+    return [6, ...costs.slice().reverse()];
+  }
+  if (isStraight) {
+    if (isWheel) return [5, 5];
+    return [5, costs[4]];
+  }
+  if (groups[0].count === 3) {
+    return [4, groups[0].value, groups[1].value, groups[2].value];
+  }
+  if (groups[0].count === 2 && groups[1].count === 2) {
+    const highPair = Math.max(groups[0].value, groups[1].value);
+    const lowPair = Math.min(groups[0].value, groups[1].value);
+    return [3, highPair, lowPair, groups[2].value];
+  }
+  if (groups[0].count === 2) {
+    return [
+      2,
+      groups[0].value,
+      groups[1].value,
+      groups[2].value,
+      groups[3].value,
+    ];
+  }
+  return [1, ...costs.slice().reverse()];
+}
+
+export function compareScores(a, b) {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const av = a[i] || 0;
+    const bv = b[i] || 0;
+    if (av > bv) return 1;
+    if (av < bv) return -1;
+  }
+  return 0;
+}
+
+function combinations(arr, k) {
+  if (k === 0) return [[]];
+  if (arr.length < k) return [];
+  const [first, ...rest] = arr;
+  const withFirst = combinations(rest, k - 1).map((c) => [first, ...c]);
+  const withoutFirst = combinations(rest, k);
+  return [...withFirst, ...withoutFirst];
+}
+
+/**
+ * Given 5-7 cards, find the best 5-card poker hand.
+ */
+export function getBestHand(cards) {
+  if (cards.length < 5) return null;
+  if (cards.length === 5) {
+    const score = evaluateFiveCards(cards);
+    return { cards, score, name: getHandName(score[0]), rank: score[0] };
+  }
+
+  const combos = combinations(cards, 5);
+  let bestScore = null;
+  let bestCombo = null;
+
+  for (const combo of combos) {
+    const score = evaluateFiveCards(combo);
+    if (!bestScore || compareScores(score, bestScore) > 0) {
+      bestScore = score;
+      bestCombo = combo;
+    }
+  }
+
+  return {
+    cards: bestCombo,
+    score: bestScore,
+    name: getHandName(bestScore[0]),
+    rank: bestScore[0],
+  };
 }
