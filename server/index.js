@@ -21,12 +21,27 @@ export const sequelizeInstance = new Sequelize(
   }
 );
 
-try {
-  await sequelizeInstance.authenticate();
-  console.log("Database connection established.");
-} catch (error) {
-  console.error("Unable to connect to database:", error);
+// Retry DB connection until MySQL is ready
+async function connectWithRetry(maxRetries = 10, delayMs = 3000) {
+  for (let i = 1; i <= maxRetries; i++) {
+    try {
+      await sequelizeInstance.authenticate();
+      console.log("Database connection established.");
+      return;
+    } catch (error) {
+      console.log(
+        `Database not ready (attempt ${i}/${maxRetries}), retrying in ${delayMs / 1000}s...`
+      );
+      if (i === maxRetries) {
+        console.error("Unable to connect to database after retries:", error);
+        process.exit(1);
+      }
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
 }
+
+await connectWithRetry();
 
 // User model (replaces old Player model)
 export const User = sequelizeInstance.define("User", {
